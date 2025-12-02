@@ -1,35 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
   Hash, Cookie, RefreshCw, Repeat2, 
   ArrowRight, ChevronLeft, Globe, ChevronRight, 
   ShoppingBag 
 } from "lucide-react";
-import { Metadata } from "next";
 
-// --- SEO 元数据配置 ---
-export const metadata: Metadata = {
-  title: "效率工具箱 | 在线数据处理与 Cookie 转换工具集",
-  description: "免费在线效率工具箱，提供文本数字提取、Cookie 格式转换、文本去重清洗、FB UID 检测等开发者与营销必备工具，无需下载，即开即用。",
-  keywords: [
-    "在线工具箱", "数字提取工具", "Cookie筛选器", "Cookie格式转换", 
-    "文本去重", "Facebook营销工具", "数据清洗", "软件商店"
-  ],
-  openGraph: {
-    title: "效率工具箱 - 提升工作效率的在线神器",
-    description: "集成文本提取、Cookie 转换、UID 检测等多款实用工具，无需安装，即开即用。",
-    type: "website",
-    url: "/tools",
-    siteName: "Efficiency Hub",
-    locale: "zh_CN",
-  },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-  robots: { index: true, follow: true }
-};
+// ⚠️ 注意：Metadata 不能在 "use client" 组件中导出。
+// 请将原本的 export const metadata 移动到父级 layout.tsx 或 page.tsx (Server Component) 中。
 
 // 工具配置列表
 const TOOLS = [
@@ -74,17 +54,16 @@ const TOOLS = [
     color: "bg-sky-600",
   },
   {
-    // --- 修改部分 ---
     id: "software-store",
     name: "软件商店",
     desc: "常用软件在线安装与下载",
-    path: "/app-store", // 已修改为内部路由
+    path: "/app-store",
     icon: <ShoppingBag className="w-5 h-5 md:w-8 md:h-8 text-white" aria-hidden="true" />,
     color: "bg-rose-500",
   },
 ];
 
-// --- 结构化数据 (JSON-LD) ---
+// JSON-LD 数据
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
@@ -103,12 +82,26 @@ const jsonLd = {
 };
 
 export default function ToolsPage() {
+  const router = useRouter();
+
+  // --- 核心逻辑：处理点击延迟 ---
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    // 如果是外部链接，不做处理，直接交由浏览器打开
+    if (path.startsWith("http")) return;
+
+    e.preventDefault(); // 1. 阻止立即跳转
+
+    // 2. 设置延迟 (250ms)，确保 active:scale 动画能被用户肉眼捕捉到
+    setTimeout(() => {
+      router.push(path);
+    }, 250);
+  };
+
   return (
     <div 
       className="min-h-[100dvh] bg-[#F5F5F7] font-sans text-zinc-900 selection:bg-blue-500/20 flex flex-col pb-[env(safe-area-inset-bottom)] select-none"
       style={{ WebkitTapHighlightColor: 'transparent' }}
     >
-      
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -119,13 +112,13 @@ export default function ToolsPage() {
         <div className="max-w-5xl mx-auto px-4 md:px-6 h-14 md:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             
-            <Link href="/" aria-label="返回首页" className="group outline-none">
-              {/* 
-                 按钮阻尼感优化：
-                 1. duration-300: 默认状态变化（回弹）需要 300ms，更柔和
-                 2. active:duration-200: 按下需要 200ms，不再是瞬间变小，能看清过程
-                 3. active:scale-95: 保持这个缩放比例
-              */}
+            {/* 返回按钮 - 绑定延迟点击 */}
+            <Link 
+              href="/" 
+              onClick={(e) => handleNavigation(e, "/")}
+              aria-label="返回首页" 
+              className="group outline-none"
+            >
               <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl shadow-sm border border-zinc-200 flex items-center justify-center text-zinc-900 shrink-0 
                 transition-all duration-300 ease-out
                 group-hover:bg-zinc-50 group-hover:border-zinc-300 
@@ -134,6 +127,7 @@ export default function ToolsPage() {
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 group-hover:text-zinc-900" />
               </div>
             </Link>
+            
             <div className="flex flex-col justify-center">
               <h1 className="text-base md:text-xl font-bold tracking-tight text-zinc-900 leading-tight">效率工具箱</h1>
               <p className="hidden md:block text-xs text-zinc-500 font-medium">汇聚实用工具，提升工作效率</p>
@@ -146,7 +140,6 @@ export default function ToolsPage() {
       <main className="flex-1 max-w-5xl mx-auto px-4 py-4 md:px-6 md:py-12 w-full">
         
         <h2 className="sr-only">工具列表</h2>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
           {TOOLS.map((tool) => {
             const isExternal = tool.path.startsWith("http");
@@ -154,20 +147,17 @@ export default function ToolsPage() {
             return (
               <Link 
                 href={tool.path} 
-                key={tool.id} 
+                key={tool.id}
+                // 绑定延迟点击事件
+                onClick={(e) => handleNavigation(e, tool.path)}
                 className="group block h-full outline-none focus:outline-none ring-0"
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 aria-label={`打开 ${tool.name}`}
               >
-                {/* 
-                   卡片阻尼感核心配置：
-                   1. duration-500: 回弹非常慢 (0.5秒)，营造“重力感”和“高级感”
-                   2. active:duration-200: 按下过程清晰可见，防止闪烁
-                   3. active:scale-[0.96]: 缩放幅度加大一点点，配合慢速动画，视觉反馈更明确
-                */}
                 <article className="h-full bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 border border-zinc-100 shadow-sm 
                   transition-all duration-500 ease-out
+                  /* 动画核心：按下时缩小至 96% */
                   active:scale-[0.96] active:bg-zinc-50 active:duration-200 
                   hover:shadow-xl hover:shadow-zinc-200/60 hover:-translate-y-0.5 md:hover:-translate-y-1 hover:border-zinc-200 
                   transform-gpu touch-manipulation
@@ -196,13 +186,12 @@ export default function ToolsPage() {
                        <ArrowRight className="ml-auto w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                     </div>
                   </div>
-
                 </article>
               </Link>
             );
           })}
-
-          {/* 占位卡片 */}
+          
+          {/* 占位卡片 - 保持原样 */}
           <div className="h-full border-2 border-dashed border-zinc-200 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-row md:flex-col items-center justify-center md:text-center gap-3 opacity-60 hover:opacity-100 transition-all cursor-default min-h-[80px] md:min-h-[240px] 
             duration-500 ease-out active:scale-[0.96] active:bg-zinc-50 active:duration-200 transform-gpu touch-manipulation select-none">
              <div className="w-10 h-10 md:w-12 md:h-12 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-400 shrink-0">
@@ -210,11 +199,9 @@ export default function ToolsPage() {
              </div>
              <p className="text-xs md:text-sm font-medium text-zinc-400">更多工具 敬请期待...</p>
           </div>
-
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="py-6 text-center">
         <p className="text-[10px] md:text-xs text-zinc-400 font-medium">
           致力于为您提供极致的效率体验
