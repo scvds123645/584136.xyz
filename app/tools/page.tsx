@@ -105,7 +105,6 @@ export default function ToolsPage() {
   return (
     <div 
       className="min-h-[100dvh] bg-[#F5F5F7] font-sans text-zinc-900 selection:bg-blue-500/20 flex flex-col pb-[env(safe-area-inset-bottom)] select-none"
-      // 关键优化：内联样式移除移动端点击高亮，比 CSS 类更稳健
       style={{ WebkitTapHighlightColor: 'transparent' }}
     >
       
@@ -119,18 +118,17 @@ export default function ToolsPage() {
         <div className="max-w-5xl mx-auto px-4 md:px-6 h-14 md:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             
-            {/* 返回按钮优化 */}
             <Link href="/" aria-label="返回首页" className="group outline-none">
               {/* 
-                 按钮手感优化：
-                 1. active:bg-zinc-100: 按下时背景变灰
-                 2. active:scale-95: 缩放幅度调整为 0.95，比 0.90 更自然
-                 3. transform-gpu: 硬件加速
+                 按钮阻尼感优化：
+                 1. duration-300: 默认状态变化（回弹）需要 300ms，更柔和
+                 2. active:duration-200: 按下需要 200ms，不再是瞬间变小，能看清过程
+                 3. active:scale-95: 保持这个缩放比例
               */}
               <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl shadow-sm border border-zinc-200 flex items-center justify-center text-zinc-900 shrink-0 
-                transition-all duration-200 ease-out
+                transition-all duration-300 ease-out
                 group-hover:bg-zinc-50 group-hover:border-zinc-300 
-                active:bg-zinc-100 active:scale-95 active:duration-75 
+                active:bg-zinc-100 active:scale-95 active:duration-200 
                 transform-gpu touch-manipulation">
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-zinc-600 group-hover:text-zinc-900" />
               </div>
@@ -156,20 +154,20 @@ export default function ToolsPage() {
               <Link 
                 href={tool.path} 
                 key={tool.id} 
-                className="group block h-full outline-none focus:outline-none ring-0" // 移除所有焦点框
+                className="group block h-full outline-none focus:outline-none ring-0"
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 aria-label={`打开 ${tool.name}`}
               >
                 {/* 
-                   卡片手感终极优化：
-                   1. transform-gpu: 开启硬件加速，解决低端机动画卡顿
-                   2. active:scale-[0.98]: 极其微小的缩放 (0.98)，模拟 iOS 列表按压感，高级不跳跃
-                   3. active:bg-zinc-50: 按下时背景微变，提供视觉确认
+                   卡片阻尼感核心配置：
+                   1. duration-500: 回弹非常慢 (0.5秒)，营造“重力感”和“高级感”
+                   2. active:duration-200: 按下过程清晰可见，防止闪烁
+                   3. active:scale-[0.96]: 缩放幅度加大一点点，配合慢速动画，视觉反馈更明确
                 */}
                 <article className="h-full bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 border border-zinc-100 shadow-sm 
-                  transition-all duration-200 ease-out
-                  active:scale-[0.98] active:bg-zinc-50 active:duration-75 
+                  transition-all duration-500 ease-out
+                  active:scale-[0.96] active:bg-zinc-50 active:duration-200 
                   hover:shadow-xl hover:shadow-zinc-200/60 hover:-translate-y-0.5 md:hover:-translate-y-1 hover:border-zinc-200 
                   transform-gpu touch-manipulation
                   flex flex-row md:flex-col items-center md:items-start md:justify-between gap-4 md:gap-0">
@@ -205,7 +203,7 @@ export default function ToolsPage() {
 
           {/* 占位卡片 */}
           <div className="h-full border-2 border-dashed border-zinc-200 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-row md:flex-col items-center justify-center md:text-center gap-3 opacity-60 hover:opacity-100 transition-all cursor-default min-h-[80px] md:min-h-[240px] 
-            active:scale-[0.98] active:bg-zinc-50 active:duration-75 transform-gpu touch-manipulation select-none">
+            duration-500 ease-out active:scale-[0.96] active:bg-zinc-50 active:duration-200 transform-gpu touch-manipulation select-none">
              <div className="w-10 h-10 md:w-12 md:h-12 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-400 shrink-0">
                 <span className="text-lg md:text-xl font-bold">+</span>
              </div>
