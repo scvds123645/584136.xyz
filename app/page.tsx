@@ -3,17 +3,17 @@ import {
   ShieldCheck, Clock, Database, 
   Check, ArrowRight, Globe, Zap,
   BookOpen, MessageCircle, Wrench, Star, HelpCircle, ChevronDown, Lock, Send
-} from "lucide-react"; // 引入 Send 图标用于 Telegram
+} from "lucide-react";
 import { Metadata } from "next";
 
 // --- 全局配置 & 常量 ---
 const SITE_CONFIG = {
-  brand: "fb180", // 核心品牌名改为 fb180
+  brand: "fb180",
   name: "fb180频道 - 脸书白号/老号批发官方店", 
   domain: "https://www.584136.xyz", 
   ogImage: "/og-image.jpg", 
   contactLink: "https://t.me/Facebookkf_bot",
-  channelLink: "https://t.me/fb180", // 假设频道链接，如果没有可以换回客服链接
+  channelLink: "https://t.me/fb180",
   logoHtml: (
     <span className="font-bold text-xl tracking-tight text-zinc-900 flex items-center gap-1">
       <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
@@ -27,7 +27,7 @@ const PRODUCT = {
   id: "aged-30-cn",
   sku: "FB-AGED-30D",
   mpn: "FB180-OFFICIAL",
-  title: "Facebook 30天+ 满月老号 (fb180频道甄选)", // 标题强调频道出品
+  title: "Facebook 30天+ 满月老号 (fb180频道甄选)",
   shortTitle: "Facebook 满月老号",
   subtitle: "fb180 频道一手货源 · 脸书白号 · 稳定耐用",
   description: "fb180 频道官方出售的高质量脸书白号。注册时长超30天，包含c_user和xs核心Cookie，纯净IP注册，权重极高，是广告投放及商城业务的最佳选择。",
@@ -48,7 +48,7 @@ const PRODUCT = {
   ],
   reviews: {
     rating: "4.9",
-    count: 356, // 适当增加好评数体现频道热度
+    count: 356,
     bestRating: "5",
     worstRating: "1"
   }
@@ -73,7 +73,6 @@ const FAQS = [
 // --- Metadata 配置 ---
 export const metadata: Metadata = {
   title: {
-    // 🔥 Title 修正：强调 fb180 品牌和 脸书白号 产品
     default: `fb180频道官方店_脸书白号购买_Facebook满月老号批发 | ${SITE_CONFIG.brand}`,
     template: `%s | ${SITE_CONFIG.brand}`
   },
@@ -116,7 +115,7 @@ const structuredData = {
       "image": [`${SITE_CONFIG.domain}${SITE_CONFIG.ogImage}`],
       "description": PRODUCT.description,
       "sku": PRODUCT.sku,
-      "brand": { "@type": "Brand", "name": "fb180" }, // 品牌改为 fb180
+      "brand": { "@type": "Brand", "name": "fb180" },
       "offers": {
         "@type": "Offer",
         "url": PRODUCT.buyLink,
@@ -147,22 +146,23 @@ const structuredData = {
 // --- 页面组件 ---
 export default function Page() {
   return (
-    <div className="min-h-[100dvh] bg-zinc-50 font-sans text-zinc-900 flex flex-col selection:bg-blue-500/20 overflow-x-hidden pb-[env(safe-area-inset-bottom)] relative">
+    // 优化: 添加 transform-gpu 防止整体渲染抖动
+    <div className="min-h-[100dvh] bg-zinc-50 font-sans text-zinc-900 flex flex-col selection:bg-blue-500/20 overflow-x-hidden pb-[env(safe-area-inset-bottom)] relative transform-gpu">
       
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      {/* 背景装饰 */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-[100px] opacity-60 mix-blend-multiply"></div>
-        <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-indigo-100/50 rounded-full blur-[100px] opacity-60 mix-blend-multiply"></div>
-        <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-zinc-100 rounded-full blur-[100px] opacity-80"></div>
+      {/* 背景装饰 - iOS 性能优化版 */}
+      {/* 关键修改: 移除 mix-blend-multiply, 添加 transform-gpu translate-z-0, 调整颜色透明度代替混合模式 */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-200/40 rounded-full blur-[80px] animate-pulse transform-gpu translate-z-0"></div>
+        <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-indigo-200/40 rounded-full blur-[80px] opacity-60 transform-gpu translate-z-0"></div>
+        <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-zinc-200/60 rounded-full blur-[80px] opacity-80 transform-gpu translate-z-0"></div>
       </div>
 
       {/* 顶部导航 */}
       <header className="sticky top-4 z-50 w-full px-4 max-w-md mx-auto">
         <nav className="flex justify-between items-center bg-white/70 backdrop-blur-xl border border-white/50 shadow-sm shadow-zinc-200/50 rounded-full py-2.5 px-4 transition-all duration-300 hover:shadow-md hover:bg-white/80">
           <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity" aria-label="返回首页">
-            {/* Logo 这里不再需要 globe 图标，可以换成更简洁的圆点或者保持 */}
             <div className="w-8 h-8 bg-zinc-900 rounded-full shadow-inner flex items-center justify-center text-white font-bold text-[10px]">
               FB
             </div>
@@ -190,7 +190,6 @@ export default function Page() {
             Official Shop of fb180
           </div>
           
-          {/* H1 优化：突出品牌和产品 */}
           <h1 className="text-4xl sm:text-[2.75rem] font-extrabold tracking-tight text-zinc-900 leading-[1.1]">
             <span className="text-[#2AABEE]">fb180</span> 频道甄选
             <br/>
@@ -207,14 +206,13 @@ export default function Page() {
         </section>
 
         {/* 商品卡片 */}
-        <article className="w-full max-w-[22rem] sm:max-w-sm animate-in fade-in zoom-in duration-700 delay-100 relative group" itemScope itemType="https://schema.org/Product">
-            <div className="absolute -inset-0.5 bg-gradient-to-b from-[#2AABEE]/20 to-blue-400/20 rounded-[2rem] blur-xl opacity-70 group-hover:opacity-100 transition duration-500"></div>
+        <article className="w-full max-w-[22rem] sm:max-w-sm animate-in fade-in zoom-in duration-700 delay-100 relative group transform-gpu translate-z-0" itemScope itemType="https://schema.org/Product">
+            <div className="absolute -inset-0.5 bg-gradient-to-b from-[#2AABEE]/20 to-blue-400/20 rounded-[2rem] blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none"></div>
             
-            <div className="bg-white/80 backdrop-blur-2xl rounded-[1.8rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 overflow-hidden relative">
+            <div className="bg-white/80 backdrop-blur-xl rounded-[1.8rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 overflow-hidden relative">
                 <meta itemProp="name" content={PRODUCT.title} />
                 <meta itemProp="description" content={PRODUCT.description} />
                 
-                {/* 顶条改为 Telegram 蓝，呼应品牌 */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-[#2AABEE] to-blue-500 opacity-80"></div>
                 
                 <div className="p-6 sm:p-8 relative z-10">
