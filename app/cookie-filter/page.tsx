@@ -8,7 +8,7 @@ interface CookieResult {
   id: number;
   c_user: string | null;
   xs: string | null;
-  formatted: string; // c_user=xxx; xs=xxx;
+  formatted: string;
 }
 
 export default function MultiCookieExtractor() {
@@ -78,7 +78,10 @@ export default function MultiCookieExtractor() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex items-center justify-center p-3 sm:p-8">
+    // 关键修改 1: 
+    // 手机端 (默认): flex-col justify-start pt-6。不再垂直居中，防止键盘弹出时页面中心点上移导致跳动。
+    // 电脑端 (sm): justify-center p-8。保持居中美观。
+    <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex flex-col sm:flex-row sm:items-center justify-start sm:justify-center pt-6 px-3 sm:p-8 pb-safe">
       <main className="w-full max-w-3xl flex flex-col gap-4 sm:gap-6 relative">
         
         {/* Header */}
@@ -104,11 +107,16 @@ export default function MultiCookieExtractor() {
         </div>
 
         {/* Main Container 
-            FIX: 移除了 `transition-all duration-500`，防止键盘弹出时高度变化产生滑动动画 
+            关键修改 2:
+            手机端: h-[550px]。使用固定像素高度，而不是 vh。
+                   这样当键盘弹出缩小视口时，容器高度保持不变，不会被压缩。
+            电脑端: h-[600px]。
         */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-zinc-200/50 rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col sm:flex-row h-[82vh] sm:h-[600px]">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-zinc-200/50 rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col sm:flex-row h-[550px] sm:h-[600px]">
           
-          {/* Left Side: Input Area */}
+          {/* Left Side: Input Area 
+             Mobile: h-[35%] 固定比例
+          */}
           <div className="w-full h-[35%] sm:h-full sm:w-1/2 p-1 flex flex-col border-b sm:border-b-0 sm:border-r border-zinc-100 bg-white/40 relative group shrink-0">
             <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shrink-0">
                 <span className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">Input Data</span>
@@ -122,13 +130,14 @@ export default function MultiCookieExtractor() {
               value={text}
               onChange={handleChange}
               placeholder="在此粘贴多行数据...&#10;例如：&#10;xxxxx c_user=123; xs=abc;"
-              // text-base prevents zoom on iOS
               className="flex-1 w-full px-4 sm:px-6 pb-4 pt-0 bg-transparent resize-none outline-none text-base sm:text-sm font-mono text-zinc-600 placeholder:text-zinc-300 leading-relaxed custom-scrollbar"
               spellCheck={false}
             />
           </div>
 
-          {/* Right Side: Results List */}
+          {/* Right Side: Results List 
+             Mobile: flex-1 自动填充剩余空间
+          */}
           <div className="w-full flex-1 sm:h-full sm:w-1/2 flex flex-col bg-zinc-50/50 min-h-0">
             
             <div className="h-12 sm:h-14 px-4 sm:px-6 border-b border-zinc-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10 shrink-0">
