@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { 
-  Search, LayoutGrid, Loader2, 
+  Search, ChevronLeft, Loader2, 
   Database, 
   ShieldCheck 
 } from "lucide-react";
 
-// --- 1. 真实数据配置 (已汉化) ---
+// --- 1. 真实数据配置 ---
 const APPS = [
   {
     id: 1,
@@ -87,7 +88,7 @@ const APPS = [
     iconType: "image",
     iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/telegam@fb180.jpg",
     link: "https://fh10.zmfaka.cn/item/c24vp9/",
-    price: "访问", // 商店链接
+    price: "访问",
   },
   {
     id: 9,
@@ -97,14 +98,18 @@ const APPS = [
     iconType: "svg",
     iconSrc: null,
     link: "https://quwenjian.cc/share/download?key=0d5a04e745f8d04ae5c327f7c4ccb29232daefa6dfb37ab79b6542c57174d64f&code=53HWU",
-    price: "下载", // 文件资源
+    price: "下载",
   },
 ];
 
 export default function AppStore() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 过滤逻辑
+  // --- 修复标题逻辑：在客户端组件加载时设置标题 ---
+  useEffect(() => {
+    document.title = "资源中心 | Efficiency Hub";
+  }, []);
+
   const filteredApps = APPS.filter(app => 
     app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     app.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -117,12 +122,14 @@ export default function AppStore() {
       <header className="sticky top-0 z-50 bg-[#F5F5F7]/85 backdrop-blur-md border-b border-zinc-200/60 supports-[backdrop-filter]:bg-[#F5F5F7]/60">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 md:h-16 flex items-center gap-3">
           
-          {/* Logo */}
-          <div className="w-8 h-8 md:w-9 md:h-9 bg-zinc-900 rounded-lg flex items-center justify-center text-white shrink-0 shadow-sm">
-              <LayoutGrid size={16} className="md:w-5 md:h-5" />
-          </div>
+          {/* 返回按钮 */}
+          <Link href="/tools" className="active:scale-95 transition-transform">
+            <div className="w-8 h-8 md:w-9 md:h-9 bg-white hover:bg-zinc-50 border border-zinc-200 rounded-lg flex items-center justify-center text-zinc-600 shrink-0 shadow-sm transition-colors">
+                <ChevronLeft size={20} className="md:w-5 md:h-5 relative -left-[1px]" />
+            </div>
+          </Link>
           
-          {/* Search Bar */}
+          {/* 搜索框 */}
           <div className="relative group flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-blue-500 transition-colors" size={16} />
             <input 
@@ -134,8 +141,6 @@ export default function AppStore() {
             />
           </div>
 
-          {/* Avatar Placeholder */}
-          <div className="hidden md:block w-8 h-8 rounded-full bg-zinc-200 border border-zinc-300" />
         </div>
       </header>
 
@@ -210,7 +215,7 @@ function AppCard({ app }: { app: typeof APPS[0] }) {
     );
 }
 
-// --- 子组件：GET 按钮 (状态汉化) ---
+// --- 子组件：GET 按钮 ---
 function GetButton({ label = "获取", downloadLink }: { label?: string, downloadLink: string }) {
     const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
 
@@ -246,19 +251,14 @@ function GetButton({ label = "获取", downloadLink }: { label?: string, downloa
                     : ""}
             `}
         >
-            {/* 按钮文字：获取/访问/下载 */}
             <span className={`absolute transition-all duration-300 ${status === "idle" ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}>
                 {label}
             </span>
-            
-            {/* 加载圈 */}
             <Loader2 
                 className={`absolute animate-spin text-zinc-400 transition-all duration-300 ${status === "loading" ? "opacity-100 scale-100" : "opacity-0 scale-50"}`} 
                 size={14} 
                 strokeWidth={3}
             />
-            
-            {/* 完成文字：打开 */}
             <span className={`absolute transition-all duration-300 ${status === "done" ? "opacity-100 scale-100 font-semibold" : "opacity-0 scale-150"}`}>
                 打开
             </span>
