@@ -2,65 +2,103 @@
 
 import { useState } from "react";
 import { 
-  Search, LayoutGrid, Image as ImageIcon, Music, Video, 
-  Check, Gamepad2, Box, Loader2
+  Search, LayoutGrid, Loader2, 
+  Database, // 用于第9个资源的图标
+  ShieldCheck // 用于安全认证标识
 } from "lucide-react";
 
-// --- 1. 模拟数据 ---
+// --- 1. 真实数据配置 ---
 const APPS = [
   {
     id: 1,
-    name: "Pixel Pro",
-    category: "Photography",
-    desc: "Professional photo editing tools.",
-    icon: <ImageIcon className="text-white" size={28} />,
-    color: "bg-gradient-to-br from-purple-500 to-indigo-600",
+    name: "Facebook",
+    category: "Social Networking",
+    desc: "Connect with friends, family and the world.",
+    // 使用 img 标签直接渲染外部图片链接
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/Facebook_icon.webp",
+    link: "https://quwenjian.cc/share/download?key=b703e78f98bf6a75a8e08ce215e5fdb635803d58b049f17b99fd3232f5a1d46b&code=ULPHA",
     price: "GET",
   },
   {
     id: 2,
-    name: "Sonic Flow",
-    category: "Music",
-    desc: "Stream lossless audio anywhere.",
-    icon: <Music className="text-white" size={28} />,
-    color: "bg-gradient-to-br from-pink-500 to-rose-600",
+    name: "Gmail",
+    category: "Productivity",
+    desc: "Email that's intuitive, efficient, and useful.",
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/Gmail_icon.webp",
+    link: "https://quwenjian.cc/share/download?key=8c3fc56d9b8fec6fbdeb859681d1e049bb3c789cdb536995e0c609a9c727bdc7&code=WSO6N",
     price: "GET",
   },
   {
     id: 3,
-    name: "Cinema X",
-    category: "Entertainment",
-    desc: "Watch 4K movies offline.",
-    icon: <Video className="text-white" size={28} />,
-    color: "bg-gradient-to-br from-blue-400 to-blue-600",
+    name: "Outlook",
+    category: "Business",
+    desc: "Connect, organize, and get things done.",
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/Outlook_icon.webp",
+    link: "https://quwenjian.cc/share/download?key=08933905a824efbeea556cbef72061fc38d4a18699652ae99a0fbf6efac89d94&code=RZX6G",
     price: "GET",
   },
   {
     id: 4,
-    name: "Task Master",
-    category: "Productivity",
-    desc: "Organize your life efficiently.",
-    icon: <Check className="text-white" size={28} />,
-    color: "bg-gradient-to-br from-emerald-400 to-teal-600",
-    price: "$4.99",
+    name: "Zoho Mail",
+    category: "Business",
+    desc: "Secure, ad-free email for your business.",
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/Zoho%20Mail_icon.webp",
+    link: "https://quwenjian.cc/share/download?key=df5cd5c66b7241328f46efdc2604caf7b4363589ce1098483ff8f483ddc71938&code=13HA9",
+    price: "GET",
   },
   {
     id: 5,
-    name: "Nebula Glide",
-    category: "Games",
-    desc: "Arcade racing in space.",
-    icon: <Gamepad2 className="text-white" size={28} />,
-    color: "bg-gradient-to-br from-orange-400 to-red-600",
+    name: "Via Browser",
+    category: "Utilities",
+    desc: "Fast, lightweight, and pure browser.",
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/Via_6.8.0.apk_icon.webp",
+    link: "https://res.viayoo.com/v1/via-release-cn.apk",
     price: "GET",
   },
   {
     id: 6,
-    name: "Cloud Box",
-    category: "Utilities",
-    desc: "Secure storage for everyone.",
-    icon: <Box className="text-white" size={28} />,
-    color: "bg-gradient-to-br from-sky-400 to-cyan-600",
+    name: "绿茶VPN",
+    category: "Network",
+    desc: "Fast and secure internet connection.",
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/%E7%BB%BF%E8%8C%B6VPN_icon.webp",
+    link: "https://quwenjian.cc/share/download?key=86241c3ad7502c7370372fdde2a1a423bb97f581ec8b7463aa9623754441e7f7&code=YIVYA",
     price: "GET",
+  },
+  {
+    id: 7,
+    name: "Discord",
+    category: "Social Networking",
+    desc: "Talk, chat, hang out, and stay close.",
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/Discord_icon.webp",
+    link: "https://quwenjian.cc/share/download?key=29eb683c5e92e7d340bbe7cff8c830369416921513ce89de55b602257758c119&code=E3A9B",
+    price: "GET",
+  },
+  {
+    id: 8,
+    name: "脸书白号卡网",
+    category: "Store",
+    desc: "High quality FB accounts marketplace.",
+    iconType: "image",
+    iconSrc: "https://www.584136.xyz/%E5%A4%B4%E5%83%8F/telegam@fb180.jpg",
+    link: "https://fh10.zmfaka.cn/item/c24vp9/",
+    price: "VISIT", // 商店链接显示 VISIT 更合适
+  },
+  {
+    id: 9,
+    name: "3W+ 未180脸书账号",
+    category: "Resources",
+    desc: "Massive dataset of unchecked accounts.",
+    iconType: "svg", // 第9个特殊处理为 SVG
+    iconSrc: null,
+    link: "https://quwenjian.cc/share/download?key=0d5a04e745f8d04ae5c327f7c4ccb29232daefa6dfb37ab79b6542c57174d64f&code=53HWU",
+    price: "FILE",
   },
 ];
 
@@ -90,7 +128,7 @@ export default function AppStore() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-blue-500 transition-colors" size={16} />
             <input 
               type="text" 
-              placeholder="Search..." 
+              placeholder="Search Apps..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-zinc-200/60 focus:bg-white border border-transparent focus:border-blue-500/20 rounded-xl py-2 pl-9 pr-4 text-sm outline-none transition-all duration-300 placeholder:text-zinc-500/80 shadow-inner md:shadow-none"
@@ -106,9 +144,8 @@ export default function AppStore() {
         
         {/* --- App List Section --- */}
         <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* 删除了 justify-between 和 See All 按钮，现在标题独占一行 */}
             <div className="mb-4 px-1">
-                <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Today's Favorites</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-zinc-900 tracking-tight">Essential Apps</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -128,7 +165,7 @@ export default function AppStore() {
         {/* Footer */}
         <footer className="pt-8 pb-12 border-t border-zinc-200 text-center">
             <p className="text-xs text-zinc-400">
-                Copyright © 2024 Apple Style Store Inc. All rights reserved.
+                Copyright © 2024 Resource Hub. All rights reserved.
             </p>
         </footer>
       </main>
@@ -141,11 +178,21 @@ function AppCard({ app }: { app: typeof APPS[0] }) {
     return (
         <div className="group bg-white p-3 md:p-4 rounded-2xl md:rounded-3xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] border border-zinc-100 md:hover:shadow-xl md:hover:shadow-zinc-200/50 md:hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 md:gap-4 active:scale-[0.98]">
             
-            {/* Icon */}
-            <div className={`w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-[1.2rem] ${app.color} flex items-center justify-center shadow-md shadow-zinc-200/50 group-hover:scale-105 transition-transform duration-300 shrink-0`}>
-                <div className="scale-90 md:scale-100 transform transition-transform">
-                    {app.icon}
-                </div>
+            {/* Icon 区域处理逻辑 */}
+            <div className="shrink-0 group-hover:scale-105 transition-transform duration-300">
+                {app.iconType === "image" ? (
+                     // 1. 图片类型图标 (无背景容器，直接显示图片)
+                    <img 
+                        src={app.iconSrc!} 
+                        alt={app.name} 
+                        className="w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-[1.2rem] shadow-md shadow-zinc-200 object-cover bg-zinc-50"
+                    />
+                ) : (
+                    // 2. SVG/文件类型图标 (使用渐变背景)
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-[1.2rem] bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-md shadow-zinc-200 text-white">
+                        <Database size={32} />
+                    </div>
+                )}
             </div>
             
             {/* Text Info */}
@@ -157,21 +204,35 @@ function AppCard({ app }: { app: typeof APPS[0] }) {
             
             {/* Action Button */}
             <div className="shrink-0 flex flex-col items-center justify-center pl-1">
-                 <GetButton initialLabel={app.price} />
-                 <span className="text-[9px] md:text-[10px] text-zinc-400 mt-1 font-medium scale-90 md:scale-100 origin-top">In-App</span>
+                 <GetButton label={app.price} downloadLink={app.link} />
+                 <span className="text-[9px] md:text-[10px] text-zinc-400 mt-1 font-medium scale-90 md:scale-100 origin-top flex items-center gap-0.5">
+                    <ShieldCheck size={10} /> Verified
+                 </span>
             </div>
         </div>
     );
 }
 
-// --- 子组件：GET 按钮 ---
-function GetButton({ initialLabel = "GET" }: { initialLabel?: string }) {
+// --- 子组件：GET 按钮 (带下载跳转功能) ---
+function GetButton({ label = "GET", downloadLink }: { label?: string, downloadLink: string }) {
     const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
 
     const handleClick = () => {
         if (status !== "idle") return;
+        
         setStatus("loading");
-        setTimeout(() => setStatus("done"), 1500);
+        
+        // 模拟短暂的网络请求延迟，提升交互质感
+        setTimeout(() => {
+            setStatus("done");
+            // 在新标签页打开下载链接
+            window.open(downloadLink, '_blank');
+            
+            // 3秒后重置按钮状态，允许再次点击
+            setTimeout(() => {
+                setStatus("idle");
+            }, 3000);
+        }, 800); 
     };
 
     return (
@@ -191,14 +252,19 @@ function GetButton({ initialLabel = "GET" }: { initialLabel?: string }) {
                     : ""}
             `}
         >
+            {/* Idle Text (GET / VISIT / FILE) */}
             <span className={`absolute transition-all duration-300 ${status === "idle" ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}>
-                {initialLabel}
+                {label}
             </span>
+            
+            {/* Loading Spinner */}
             <Loader2 
                 className={`absolute animate-spin text-zinc-400 transition-all duration-300 ${status === "loading" ? "opacity-100 scale-100" : "opacity-0 scale-50"}`} 
                 size={14} 
                 strokeWidth={3}
             />
+            
+            {/* Done Text (OPEN) */}
             <span className={`absolute transition-all duration-300 ${status === "done" ? "opacity-100 scale-100 font-semibold" : "opacity-0 scale-150"}`}>
                 OPEN
             </span>
