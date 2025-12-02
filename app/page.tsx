@@ -4,7 +4,7 @@ import {
   Check, ArrowRight, Globe, Zap,
   BookOpen, MessageCircle, Wrench, Star, HelpCircle, ChevronDown, Lock, Send
 } from "lucide-react";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next"; // 👈 注意这里引入了 Viewport
 
 // --- 全局配置 & 常量 ---
 const SITE_CONFIG = {
@@ -70,6 +70,14 @@ const FAQS = [
   }
 ];
 
+// --- Viewport 配置 (单独提取) ---
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 // --- Metadata 配置 ---
 export const metadata: Metadata = {
   title: {
@@ -98,14 +106,12 @@ export const metadata: Metadata = {
     description: PRODUCT.subtitle,
     images: [`${SITE_CONFIG.domain}${SITE_CONFIG.ogImage}`],
   },
-  viewport: { width: "device-width", initialScale: 1, maximumScale: 1, userScalable: false },
   robots: { index: true, follow: true }
 };
 
 // --- 结构化数据 ---
 const priceValidUntil = new Date();
 priceValidUntil.setFullYear(priceValidUntil.getFullYear() + 1);
-
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
@@ -146,17 +152,15 @@ const structuredData = {
 // --- 页面组件 ---
 export default function Page() {
   return (
-    // 优化: 添加 transform-gpu 防止整体渲染抖动
-    <div className="min-h-[100dvh] bg-zinc-50 font-sans text-zinc-900 flex flex-col selection:bg-blue-500/20 overflow-x-hidden pb-[env(safe-area-inset-bottom)] relative transform-gpu">
+    <div className="min-h-[100dvh] bg-zinc-50 font-sans text-zinc-900 flex flex-col selection:bg-blue-500/20 overflow-x-hidden pb-[env(safe-area-inset-bottom)] relative">
       
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      {/* 背景装饰 - iOS 性能优化版 */}
-      {/* 关键修改: 移除 mix-blend-multiply, 添加 transform-gpu translate-z-0, 调整颜色透明度代替混合模式 */}
+      {/* 背景装饰 */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-200/40 rounded-full blur-[80px] animate-pulse transform-gpu translate-z-0"></div>
-        <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-indigo-200/40 rounded-full blur-[80px] opacity-60 transform-gpu translate-z-0"></div>
-        <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-zinc-200/60 rounded-full blur-[80px] opacity-80 transform-gpu translate-z-0"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-200/40 rounded-full blur-[80px] animate-pulse"></div>
+        <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-indigo-200/40 rounded-full blur-[80px] opacity-60"></div>
+        <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-zinc-200/60 rounded-full blur-[80px] opacity-80"></div>
       </div>
 
       {/* 顶部导航 */}
@@ -184,7 +188,7 @@ export default function Page() {
       <main className="flex-1 flex flex-col items-center w-full px-4 pt-8 pb-12 relative z-10">
         
         {/* 标题区 */}
-        <section className="text-center space-y-4 mb-8 w-full max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <section className="text-center space-y-4 mb-8 w-full max-w-md mx-auto">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/60 border border-white/60 text-[#2AABEE] text-[11px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
             <Send size={12} className="fill-current" aria-hidden="true" />
             Official Shop of fb180
@@ -206,7 +210,7 @@ export default function Page() {
         </section>
 
         {/* 商品卡片 */}
-        <article className="w-full max-w-[22rem] sm:max-w-sm animate-in fade-in zoom-in duration-700 delay-100 relative group transform-gpu translate-z-0" itemScope itemType="https://schema.org/Product">
+        <article className="w-full max-w-[22rem] sm:max-w-sm relative group" itemScope itemType="https://schema.org/Product">
             <div className="absolute -inset-0.5 bg-gradient-to-b from-[#2AABEE]/20 to-blue-400/20 rounded-[2rem] blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none"></div>
             
             <div className="bg-white/80 backdrop-blur-xl rounded-[1.8rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 overflow-hidden relative">
@@ -274,7 +278,7 @@ export default function Page() {
         </article>
 
         {/* 底部保障 */}
-        <section className="mt-10 grid grid-cols-3 gap-3 w-full max-w-[22rem] sm:max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+        <section className="mt-10 grid grid-cols-3 gap-3 w-full max-w-[22rem] sm:max-w-sm">
            {[
              { icon: ShieldCheck, text: "官方信誉", sub: "fb180担保" },
              { icon: Clock, text: "秒发货", sub: "24H自动" },
@@ -309,7 +313,6 @@ export default function Page() {
                   </details>
                 ))}
               </div>
-
               <div className="pt-6 border-t border-zinc-200/50">
                 <h4 className="text-xs font-bold text-zinc-700 mb-2">关于 fb180 频道</h4>
                 <div className="text-[11px] text-zinc-500 leading-relaxed text-justify space-y-2">
