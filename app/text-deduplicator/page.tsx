@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { 
   Copy, Check, Trash2, Repeat2, 
   ArrowRight, Filter, ArrowDownAZ, 
-  AlignLeft, FileText, Sparkles, Type 
+  AlignLeft, FileText, Sparkles, Type, ChevronLeft 
 } from "lucide-react";
 
 export default function DeduplicationTool() {
@@ -42,7 +43,6 @@ export default function DeduplicationTool() {
         if (removeEmpty && processVal === "") return;
 
         const checkKey = ignoreCase ? processVal.toLowerCase() : processVal;
-
         if (!seen.has(checkKey)) {
           seen.add(checkKey);
           resultLines.push(trimWhitespace ? processVal : line);
@@ -74,17 +74,29 @@ export default function DeduplicationTool() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex items-center justify-center p-4 sm:p-6">
-      <main className="w-full max-w-6xl flex flex-col gap-6">
+      <main className="w-full max-w-6xl flex flex-col gap-6 relative">
         
         {/* Header */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 flex items-center gap-3">
-            <Repeat2 className="text-zinc-400" />
-            Text Deduplicator
-          </h1>
-          <p className="text-zinc-500">
-            智能文本去重工具
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {/* 返回按钮 */}
+            <Link 
+              href="/tools" 
+              className="w-10 h-10 bg-white rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95 shadow-sm shrink-0"
+              title="返回工具列表"
+            >
+              <ChevronLeft size={20} />
+            </Link>
+            <div className="flex flex-col">
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-900 flex items-center gap-3">
+                <Repeat2 className="text-zinc-400 w-6 h-6 sm:w-8 sm:h-8" />
+                Text Deduplicator
+              </h1>
+              <p className="text-zinc-500 text-sm sm:text-base">
+                智能文本去重工具
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Stats Bar */}
@@ -133,7 +145,6 @@ export default function DeduplicationTool() {
                     <div className="hidden lg:block text-xs font-semibold text-zinc-400 uppercase tracking-wider px-2 py-1 mb-1">
                         清洗规则
                     </div>
-
                     <OptionButton 
                         active={trimWhitespace} 
                         onClick={() => setTrimWhitespace(!trimWhitespace)} 
@@ -147,9 +158,7 @@ export default function DeduplicationTool() {
                         icon={<Filter size={16} />} 
                         label="移除空行"
                     />
-
                     <div className="w-full h-px bg-zinc-100 my-1 hidden lg:block" />
-
                     <OptionButton 
                         active={ignoreCase} 
                         onClick={() => setIgnoreCase(!ignoreCase)} 
@@ -202,7 +211,6 @@ export default function DeduplicationTool() {
                     </button>
                 </div>
             </div>
-
         </div>
       </main>
       

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, Trash2, Cookie, ListChecks, Layers } from "lucide-react";
+import Link from "next/link";
+import { Copy, Check, Trash2, Cookie, ListChecks, Layers, ChevronLeft } from "lucide-react";
 
 interface CookieResult {
   id: number;
@@ -43,6 +44,7 @@ export default function MultiCookieExtractor() {
         const parts = [];
         if (c_user) parts.push(`c_user=${c_user}`);
         if (xs) parts.push(`xs=${xs}`);
+        
         const formatted = parts.join("; ") + ";";
 
         extracted.push({
@@ -87,17 +89,29 @@ export default function MultiCookieExtractor() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex items-center justify-center p-4 sm:p-8">
-      <main className="w-full max-w-3xl flex flex-col gap-6">
+      <main className="w-full max-w-3xl flex flex-col gap-6 relative">
         
         {/* Header */}
-        <div className="flex flex-col gap-2 text-center sm:text-left animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 flex items-center justify-center sm:justify-start gap-3">
-            <Cookie className="text-zinc-400" size={32} />
-            Batch Cookie Filter
-          </h1>
-          <p className="text-zinc-500 text-lg font-medium">
-            批量提取多行 Cookie 中的 c_user 和 xs
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="flex items-center gap-4">
+            {/* 返回按钮 */}
+            <Link 
+              href="/tools" 
+              className="w-10 h-10 bg-white rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95 shadow-sm shrink-0"
+              title="返回工具列表"
+            >
+              <ChevronLeft size={20} />
+            </Link>
+            <div className="flex flex-col">
+              <h1 className="text-2xl sm:text-4xl font-semibold tracking-tight text-zinc-900 flex items-center gap-3">
+                <Cookie className="text-zinc-400 w-6 h-6 sm:w-8 sm:h-8" />
+                Batch Cookie Filter
+              </h1>
+              <p className="text-zinc-500 text-sm sm:text-lg font-medium">
+                批量提取多行 Cookie 中的 c_user 和 xs
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Main Container */}

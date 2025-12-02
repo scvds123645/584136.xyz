@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, Trash2, Search, Fingerprint, ArrowUpCircle } from "lucide-react";
+import Link from "next/link";
+import { Copy, Check, Trash2, Search, Fingerprint, ChevronLeft } from "lucide-react";
 
 export default function NumberExtractor() {
   const [text, setText] = useState("");
@@ -50,8 +51,19 @@ export default function NumberExtractor() {
 
   return (
     // 布局改为 flex-col + pt (顶部填充)，避免手机键盘弹出时内容被遮挡或挤压
-    <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex flex-col items-center pt-8 sm:pt-20 px-4 pb-10">
+    <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex flex-col items-center pt-6 sm:pt-20 px-4 pb-10 relative">
       
+      {/* 返回按钮 - 绝对定位在左上角 (大屏) 或 相对布局 (小屏) */}
+      <div className="w-full max-w-2xl mb-4 sm:mb-0 sm:absolute sm:top-6 sm:left-6 sm:w-auto">
+        <Link 
+          href="/tools" 
+          className="w-10 h-10 bg-white/80 backdrop-blur rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95 shadow-sm"
+          title="返回工具列表"
+        >
+          <ChevronLeft size={20} />
+        </Link>
+      </div>
+
       <main className="w-full max-w-2xl flex flex-col gap-5 sm:gap-6">
         
         {/* Header Section */}
@@ -170,7 +182,6 @@ export default function NumberExtractor() {
                 Simple Tools
             </p>
         </div>
-
       </main>
       
       <style jsx global>{`

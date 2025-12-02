@@ -107,7 +107,7 @@ export default function AppStore() {
 
   // --- 修复标题逻辑：在客户端组件加载时设置标题 ---
   useEffect(() => {
-    document.title = "资源中心 | Efficiency Hub";
+    document.title = "资源中心";
   }, []);
 
   const filteredApps = APPS.filter(app => 

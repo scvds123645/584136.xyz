@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { 
   Hash, Cookie, RefreshCw, Repeat2, 
-  LayoutGrid, ArrowRight, ChevronLeft,
-  Globe, ChevronRight 
+  ArrowRight, ChevronLeft, Globe, ChevronRight, 
+  ShoppingBag 
 } from "lucide-react";
 import { Metadata } from "next";
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "免费在线效率工具箱，提供文本数字提取、Cookie 格式转换、文本去重清洗、FB UID 检测等开发者与营销必备工具，无需下载，即开即用。",
   keywords: [
     "在线工具箱", "数字提取工具", "Cookie筛选器", "Cookie格式转换", 
-    "文本去重", "Facebook营销工具", "数据清洗"
+    "文本去重", "Facebook营销工具", "数据清洗", "软件商店"
   ],
   openGraph: {
     title: "效率工具箱 - 提升工作效率的在线神器",
@@ -74,12 +74,13 @@ const TOOLS = [
     color: "bg-sky-600",
   },
   {
-    id: "app-store",
-    name: "App Store 界面",
-    desc: "Apple 风格软件商店演示界面组件 (UI Demo)",
-    path: "/app-store",
-    icon: <LayoutGrid className="w-5 h-5 md:w-8 md:h-8 text-white" aria-hidden="true" />,
-    color: "bg-zinc-900",
+    // --- 修改部分 ---
+    id: "software-store",
+    name: "软件商店",
+    desc: "常用软件在线安装与下载",
+    path: "/app-store", // 已修改为内部路由
+    icon: <ShoppingBag className="w-5 h-5 md:w-8 md:h-8 text-white" aria-hidden="true" />,
+    color: "bg-rose-500",
   },
 ];
 
