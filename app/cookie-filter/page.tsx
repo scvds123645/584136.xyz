@@ -15,17 +15,15 @@ export default function MultiCookieExtractor() {
   const [text, setText] = useState("");
   const [results, setResults] = useState<CookieResult[]>([]);
   
-  // 状态管理
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [allCopied, setAllCopied] = useState(false);
 
-  // 核心提取逻辑
   const processText = (inputText: string) => {
     const lines = inputText.split(/\r?\n/);
     
     const extracted: CookieResult[] = [];
     lines.forEach((line, index) => {
-      if (!line.trim()) return; // 跳过空行
+      if (!line.trim()) return; 
       
       const getValue = (key: string) => {
         const match = line.match(new RegExp(`(?:^|;\\s*)${key}=([^;]*)`));
@@ -86,7 +84,6 @@ export default function MultiCookieExtractor() {
         {/* Header */}
         <div className="flex flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* 返回按钮 */}
             <Link 
               href="/tools" 
               className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95 shadow-sm shrink-0"
@@ -107,7 +104,7 @@ export default function MultiCookieExtractor() {
         </div>
 
         {/* Main Container 
-            已移除 transition-all duration-500，防止键盘弹出时布局缓慢滑动
+            FIX: 移除了 `transition-all duration-500`，防止键盘弹出时高度变化产生滑动动画 
         */}
         <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-zinc-200/50 rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col sm:flex-row h-[82vh] sm:h-[600px]">
           
@@ -125,6 +122,7 @@ export default function MultiCookieExtractor() {
               value={text}
               onChange={handleChange}
               placeholder="在此粘贴多行数据...&#10;例如：&#10;xxxxx c_user=123; xs=abc;"
+              // text-base prevents zoom on iOS
               className="flex-1 w-full px-4 sm:px-6 pb-4 pt-0 bg-transparent resize-none outline-none text-base sm:text-sm font-mono text-zinc-600 placeholder:text-zinc-300 leading-relaxed custom-scrollbar"
               spellCheck={false}
             />
@@ -133,7 +131,6 @@ export default function MultiCookieExtractor() {
           {/* Right Side: Results List */}
           <div className="w-full flex-1 sm:h-full sm:w-1/2 flex flex-col bg-zinc-50/50 min-h-0">
             
-            {/* Result Header & Actions */}
             <div className="h-12 sm:h-14 px-4 sm:px-6 border-b border-zinc-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10 shrink-0">
               <div className="flex items-center gap-2">
                 <ListChecks size={16} className="text-zinc-400" />
@@ -158,7 +155,6 @@ export default function MultiCookieExtractor() {
               )}
             </div>
 
-            {/* Scrollable List */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar">
               {results.length === 0 ? (
                  <div className="h-full flex flex-col items-center justify-center text-zinc-300 gap-2">
@@ -172,7 +168,6 @@ export default function MultiCookieExtractor() {
                       key={item.id} 
                       className="group bg-white p-2.5 sm:p-3 rounded-xl border border-zinc-100 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-2"
                     >
-                      {/* Top Row: Badge & Status */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             {item.c_user ? (
@@ -183,8 +178,6 @@ export default function MultiCookieExtractor() {
                                 <span className="text-[10px] text-zinc-400 italic">No ID</span>
                             )}
                         </div>
-                        
-                        {/* Inline Copy Status */}
                          <span 
                             className={`text-[10px] font-bold text-green-600 uppercase tracking-wider transition-all duration-300 ${
                                 copiedId === item.id 
@@ -196,7 +189,6 @@ export default function MultiCookieExtractor() {
                         </span>
                       </div>
 
-                      {/* Bottom Row: Code & Copy Button */}
                       <div className="flex items-end justify-between gap-3">
                         <code className="text-[11px] sm:text-xs text-zinc-500 font-mono break-all line-clamp-2 bg-zinc-50 p-1.5 rounded-lg w-full border border-transparent group-hover:border-zinc-100 transition-colors">
                             {item.formatted}
@@ -215,7 +207,6 @@ export default function MultiCookieExtractor() {
                       </div>
                     </div>
                   ))}
-                  {/* 底部留白，防止被移动端底部条遮挡 */}
                   <div className="h-8 sm:hidden"></div>
                 </div>
               )}
