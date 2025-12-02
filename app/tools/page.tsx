@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { 
   Hash, Cookie, RefreshCw, Repeat2, 
   ArrowRight, ChevronLeft, Globe, ChevronRight, 
-  ShoppingBag 
+  ShoppingBag, Calendar 
 } from "lucide-react";
 
 // --- 工具配置列表 ---
@@ -51,6 +51,23 @@ const TOOLS = [
     color: "bg-sky-600",
   },
   {
+    id: "spring-festival-countdown",
+    name: "春节倒计时",
+    desc: "看看距离下一个农历新年还有多少天",
+    path: "https://4.584136.xyz/",
+    icon: <Calendar className="w-6 h-6 md:w-8 md:h-8 text-white" aria-hidden="true" />,
+    color: "bg-red-500",
+  },
+  // --- ✨ I've added the new tool here! ✨ ---
+  {
+    id: "fb-cookie-injector-guide",
+    name: "Cookie 注入器",
+    desc: "详细了解如何使用 Facebook Cookie 注入器",
+    path: "https://1.584136.xyz/",
+    icon: <ArrowRight className="w-6 h-6 md:w-8 md:h-8 text-white" aria-hidden="true" />,
+    color: "bg-purple-500",
+  },
+  {
     id: "software-store",
     name: "软件商店",
     desc: "常用软件在线安装与下载",
@@ -88,9 +105,7 @@ export default function ToolsPage() {
     
     // 如果按住 Ctrl/Cmd 点击（新标签页打开），则不拦截
     if (e.metaKey || e.ctrlKey) return;
-
     e.preventDefault(); 
-
     setTimeout(() => {
       router.push(path);
     }, 150); 
@@ -106,7 +121,6 @@ export default function ToolsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#F2F2F7]/90 backdrop-blur-xl border-b border-zinc-200/80 transition-all">
         <div className="max-w-5xl mx-auto px-4 md:px-6 h-[3.5rem] md:h-20 flex items-center justify-between">
@@ -137,7 +151,7 @@ export default function ToolsPage() {
           </div>
         </div>
       </header>
-
+      
       {/* Main Content */}
       {/* 增加底部 padding 以适应全面屏手势条 */}
       <main className="flex-1 max-w-5xl mx-auto px-4 py-4 md:px-6 md:py-12 w-full pb-[calc(env(safe-area-inset-bottom)+2rem)]">
@@ -202,7 +216,6 @@ export default function ToolsPage() {
                   <div className="flex items-center shrink-0 md:mt-8 md:w-full">
                     {/* 移动端：右侧小箭头，模仿 iOS TableView Cell */}
                     <ChevronRight className="w-5 h-5 text-zinc-300/80 md:hidden" strokeWidth={2.5} />
-
                     {/* 桌面端：底部文字链接 */}
                     <div className="hidden md:flex items-center text-sm font-semibold text-zinc-300 group-hover:text-blue-500 transition-colors w-full">
                        <span>{isExternal ? "访问站点" : "立即使用"}</span>
@@ -229,7 +242,6 @@ export default function ToolsPage() {
              </div>
              <p className="text-[13px] md:text-sm font-medium">更多工具 敬请期待...</p>
           </div>
-
         </div>
       </main>
 
