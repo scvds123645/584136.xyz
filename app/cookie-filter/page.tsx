@@ -107,15 +107,11 @@ export default function MultiCookieExtractor() {
         </div>
 
         {/* Main Container 
-            Mobile: h-[85vh] ensures it fits on screen but leaves room.
-            Desktop: h-[600px] fixed height.
+            已移除 transition-all duration-500，防止键盘弹出时布局缓慢滑动
         */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-zinc-200/50 rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col sm:flex-row h-[82vh] sm:h-[600px] transition-all duration-500">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-zinc-200/50 rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col sm:flex-row h-[82vh] sm:h-[600px]">
           
-          {/* Left Side: Input Area 
-              Mobile: h-[35%] fixed ratio to ensure results are visible.
-              Desktop: w-1/2 h-full.
-          */}
+          {/* Left Side: Input Area */}
           <div className="w-full h-[35%] sm:h-full sm:w-1/2 p-1 flex flex-col border-b sm:border-b-0 sm:border-r border-zinc-100 bg-white/40 relative group shrink-0">
             <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shrink-0">
                 <span className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">Input Data</span>
@@ -129,15 +125,12 @@ export default function MultiCookieExtractor() {
               value={text}
               onChange={handleChange}
               placeholder="在此粘贴多行数据...&#10;例如：&#10;xxxxx c_user=123; xs=abc;"
-              // text-base on mobile prevents iOS zoom, text-sm on desktop is cleaner
               className="flex-1 w-full px-4 sm:px-6 pb-4 pt-0 bg-transparent resize-none outline-none text-base sm:text-sm font-mono text-zinc-600 placeholder:text-zinc-300 leading-relaxed custom-scrollbar"
               spellCheck={false}
             />
           </div>
 
-          {/* Right Side: Results List 
-              Mobile: flex-1 (takes remaining 65% height).
-          */}
+          {/* Right Side: Results List */}
           <div className="w-full flex-1 sm:h-full sm:w-1/2 flex flex-col bg-zinc-50/50 min-h-0">
             
             {/* Result Header & Actions */}
@@ -249,7 +242,6 @@ export default function MultiCookieExtractor() {
         .custom-scrollbar:hover::-webkit-scrollbar-thumb {
           background-color: rgba(0, 0, 0, 0.15);
         }
-        /* Safe area padding for iPhone home bar */
         .pb-safe {
             padding-bottom: env(safe-area-inset-bottom);
         }
