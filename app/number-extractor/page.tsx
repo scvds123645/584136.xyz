@@ -1,208 +1,191 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { Copy, Check, Trash2, Search, Fingerprint, ChevronLeft } from "lucide-react";
+import { ChevronLeft, Copy, Trash2, Search, CheckCircle2, RotateCcw } from "lucide-react";
 
-export default function NumberExtractor() {
-  const [text, setText] = useState("");
+export default function NumberExtractor14Page() {
+  // 状态管理
+  const [inputText, setInputText] = useState("");
   const [results, setResults] = useState<string[]>([]);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [allCopied, setAllCopied] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  
+  // 用于复制反馈的定时器引用
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 提取逻辑：匹配前后非数字的14位连续数字，并去重
-  const extractNumbers = (inputText: string) => {
-    const regex = /(?<!\d)\d{14}(?!\d)/g;
-    const matches = inputText.match(regex);
-    
-    if (matches) {
-      const uniqueMatches = Array.from(new Set(matches));
-      setResults(uniqueMatches);
-    } else {
+  // 核心提取逻辑
+  const handleExtract = () => {
+    if (!inputText.trim()) {
       setResults([]);
+      setHasSearched(true);
+      return;
     }
-    setAllCopied(false);
+
+    // 正则解释：
+    // (?<!\d) : 左侧断言，前面不能是数字
+    // \d{14}  : 匹配连续14位数字
+    // (?!\d)  : 右侧断言，后面不能是数字
+    const regex = /(?<!\d)\d{14}(?!\d)/g;
+    
+    const matches = inputText.match(regex) || [];
+    
+    // 自动去重
+    const uniqueResults = Array.from(new Set(matches));
+    
+    setResults(uniqueResults);
+    setHasSearched(true);
+    setIsCopied(false); // 重置复制状态
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newText = e.target.value;
-    setText(newText);
-    extractNumbers(newText);
-  };
-
-  const copyToClipboard = (number: string, index: number) => {
-    navigator.clipboard.writeText(number);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  };
-
-  const copyAll = () => {
-    if (results.length === 0) return;
-    navigator.clipboard.writeText(results.join('\n'));
-    setAllCopied(true);
-    setTimeout(() => setAllCopied(false), 2000);
-  };
-
-  const clearAll = () => {
-    setText("");
+  // 清空逻辑
+  const handleClear = () => {
+    setInputText("");
     setResults([]);
-    setAllCopied(false);
+    setHasSearched(false);
+    setIsCopied(false);
+  };
+
+  // 一键复制逻辑
+  const handleCopyAll = async () => {
+    if (results.length === 0) return;
+
+    try {
+      const textToCopy = results.join("\n");
+      await navigator.clipboard.writeText(textToCopy);
+      
+      setIsCopied(true);
+      
+      // 2秒后重置状态
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error("复制失败:", err);
+      alert("复制失败，请手动复制");
+    }
   };
 
   return (
-    // Layout: flex-col with safe area padding for mobile
-    <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex flex-col items-center pt-4 sm:pt-20 px-4 pb-safe relative">
-      
-      {/* Header / Nav Row */}
-      <div className="w-full max-w-2xl flex items-center justify-between mb-6 sm:mb-8 sm:relative">
+    <div className="min-h-screen bg-gray-50 text-gray-900 pb-10">
+      {/* 1. Header Section */}
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-200 h-14 flex items-center px-4 justify-between shadow-sm">
         <Link 
           href="/tools" 
-          className="w-10 h-10 bg-white rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95 shadow-sm shrink-0 sm:absolute sm:-left-20 sm:top-0"
-          title="返回工具列表"
+          className="p-2 -ml-2 text-gray-600 hover:text-gray-900 active:bg-gray-100 rounded-full transition-colors"
+          aria-label="返回工具列表"
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={24} />
         </Link>
+        <h1 className="text-lg font-semibold absolute left-1/2 -translate-x-1/2">
+          14位数字提取
+        </h1>
+        {/* 占位，保持标题居中 */}
+        <div className="w-8" />
+      </header>
 
-        {/* Mobile-only spacer to balance the header if needed, or just keep it simple */}
-        <div className="sm:hidden"></div>
-      </div>
-
-      <main className="w-full max-w-2xl flex flex-col gap-5 sm:gap-6">
+      <main className="max-w-md mx-auto p-4 flex flex-col gap-4">
         
-        {/* Title Section */}
-        <div className="flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl shadow-sm border border-zinc-200 flex items-center justify-center text-blue-600">
-            <Fingerprint size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-zinc-900">
-                Number Extractor
-            </h1>
-            <p className="text-zinc-500 text-sm sm:text-lg font-medium mt-1">
-                自动提取 14 位单号
-            </p>
-          </div>
+        {/* 2. Input Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <label htmlFor="input-area" className="block text-sm font-medium text-gray-700 mb-2">
+            原始文本
+          </label>
+          <textarea
+            id="input-area"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="请粘贴包含14位数字的多行文本...&#10;例如：&#10;订单号：20231012123456 已发货&#10;ID: 20231012987654"
+            className="w-full h-40 p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none placeholder:text-gray-400"
+          />
         </div>
 
-        {/* Main Card */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-zinc-200/50 border border-zinc-100 overflow-hidden flex flex-col">
-          
-          {/* Input Area */}
-          <div className="relative group">
-            <textarea
-              value={text}
-              onChange={handleChange}
-              placeholder="请粘贴包含单号的文本..."
-              // Mobile Optimization: text-base prevents zoom, touch-manipulation
-              className="w-full h-36 sm:h-48 p-5 sm:p-6 bg-transparent resize-none outline-none text-base sm:text-lg text-zinc-700 placeholder:text-zinc-400 transition-colors focus:bg-zinc-50/50 custom-scrollbar"
-              spellCheck={false}
-            />
-            
-            {/* Clear Button */}
-            {text && (
-              <button
-                onClick={clearAll}
-                className="absolute top-3 right-3 p-2 bg-zinc-100 active:bg-zinc-200 rounded-xl text-zinc-400 hover:text-red-500 transition-all active:scale-95 z-10 shadow-sm touch-manipulation"
-                title="清空内容"
-              >
-                <Trash2 size={18} />
-              </button>
-            )}
-          </div>
+        {/* 3. Action Section */}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={handleExtract}
+            className="flex items-center justify-center gap-2 h-12 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium rounded-lg shadow-md transition-all active:scale-95"
+          >
+            <Search size={18} />
+            提取号码
+          </button>
+          <button
+            onClick={handleClear}
+            className="flex items-center justify-center gap-2 h-12 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 font-medium rounded-lg shadow-sm transition-all active:scale-95"
+          >
+            <RotateCcw size={18} />
+            清空
+          </button>
+        </div>
 
-          {/* Divider */}
-          <div className="h-px w-full bg-zinc-100" />
-
-          {/* Results Area */}
-          <div className="bg-zinc-50/80 min-h-[250px] p-4 sm:p-6 flex flex-col">
-            
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                Results 
-                <span className={`px-2 py-0.5 rounded-md text-[10px] transition-all duration-300 ${results.length > 0 ? 'bg-blue-100 text-blue-600 opacity-100' : 'bg-zinc-200 opacity-0'}`}>
-                  {results.length}
-                </span>
+        {/* 4. Result Section */}
+        {hasSearched && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <h2 className="text-sm font-semibold text-gray-600">
+                提取结果 (共 {results.length} 个)
               </h2>
-              
-              <button
-                onClick={copyAll}
-                disabled={results.length === 0 || allCopied}
-                className={`flex items-center gap-1.5 text-xs sm:text-sm font-semibold transition-all duration-200 px-3 py-1.5 rounded-lg active:scale-95 touch-manipulation ${
-                  results.length === 0
-                    ? "opacity-0 pointer-events-none"
-                    : allCopied 
-                      ? "bg-green-500 text-white shadow-md shadow-green-500/20" 
-                      : "bg-white border border-zinc-200 text-zinc-600 hover:border-blue-300 hover:text-blue-600 shadow-sm"
-                }`}
-              >
-                {allCopied ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
-                <span>{allCopied ? "已复制" : "复制全部"}</span>
-              </button>
+              {results.length > 0 && (
+                <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                  已去重
+                </span>
+              )}
             </div>
 
-            {/* List Container */}
-            {results.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-zinc-300 gap-3 py-10">
-                <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center">
-                    <Search size={20} className="opacity-50" />
+            {results.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                {/* 结果列表容器 */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-h-[40vh] overflow-y-auto overscroll-contain">
+                  <ul className="divide-y divide-gray-100">
+                    {results.map((num, index) => (
+                      <li key={`${num}-${index}`} className="flex items-center p-3 hover:bg-gray-50 transition-colors">
+                        <span className="font-mono text-gray-800 tracking-wider text-base select-all">
+                          {num}
+                        </span>
+                        <span className="ml-auto text-xs text-gray-400 font-mono">
+                          #{index + 1}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="text-xs sm:text-sm font-medium">等待输入...</p>
+
+                {/* 核心功能：一键复制 */}
+                <button
+                  onClick={handleCopyAll}
+                  disabled={isCopied}
+                  className={`
+                    w-full h-12 flex items-center justify-center gap-2 rounded-lg font-bold text-lg shadow-md transition-all duration-200
+                    ${isCopied 
+                      ? "bg-green-500 text-white" 
+                      : "bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.98]"
+                    }
+                  `}
+                >
+                  {isCopied ? (
+                    <>
+                      <CheckCircle2 size={20} />
+                      复制成功
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={20} />
+                      一键复制所有结果
+                    </>
+                  )}
+                </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-1 pb-4">
-                {results.map((num, idx) => (
-                  <div
-                    key={`${num}-${idx}`}
-                    onClick={() => copyToClipboard(num, idx)}
-                    className={`group flex items-center justify-between p-3 sm:p-3.5 bg-white border shadow-sm rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98] touch-manipulation ${
-                        copiedIndex === idx 
-                        ? "border-green-500 ring-1 ring-green-500/20 bg-green-50/30" 
-                        : "border-zinc-100 hover:border-blue-200 active:border-blue-300"
-                    }`}
-                  >
-                    <span className="font-mono text-base sm:text-lg text-zinc-700 tracking-wider font-medium select-all">
-                      {num}
-                    </span>
-                    
-                    <div className={`p-1.5 rounded-lg transition-all duration-200 flex-shrink-0 ${
-                        copiedIndex === idx
-                          ? "text-green-600 scale-110"
-                          : "text-zinc-300 group-hover:text-blue-500"
-                      }`}
-                    >
-                      {copiedIndex === idx ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
-                    </div>
-                  </div>
-                ))}
+              /* 空状态提示 */
+              <div className="bg-white rounded-xl border border-dashed border-gray-300 p-8 flex flex-col items-center justify-center text-center text-gray-400 gap-2">
+                <Search size={48} className="text-gray-200" />
+                <p>未找到符合条件的 14 位数字</p>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="text-center pb-8 sm:pb-10">
-            <p className="text-[10px] text-zinc-400 uppercase tracking-widest opacity-60">
-                Simple Tools
-            </p>
-        </div>
+        )}
       </main>
-      
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #e4e4e7;
-          border-radius: 20px;
-        }
-        /* iPhone Safe Area Support */
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-      `}</style>
     </div>
   );
 }

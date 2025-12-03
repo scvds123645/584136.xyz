@@ -1,251 +1,197 @@
+// app/cookie-filter/page.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Copy, Check, Trash2, Cookie, ListChecks, Layers, ChevronLeft } from "lucide-react";
+import { ChevronLeft, Trash2, Copy, Play, CheckCircle2 } from "lucide-react";
 
-interface CookieResult {
-  id: number;
-  c_user: string | null;
-  xs: string | null;
-  formatted: string;
-}
+export default function CookieFilterPage() {
+  // 状态管理
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [stats, setStats] = useState({ total: 0, valid: 0 });
+  const [copied, setCopied] = useState(false);
 
-export default function MultiCookieExtractor() {
-  const [text, setText] = useState("");
-  const [results, setResults] = useState<CookieResult[]>([]);
-  
-  const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [allCopied, setAllCopied] = useState(false);
+  // 核心提取逻辑
+  const handleExtract = () => {
+    if (!input.trim()) return;
 
-  const processText = (inputText: string) => {
-    const lines = inputText.split(/\r?\n/);
-    
-    const extracted: CookieResult[] = [];
-    lines.forEach((line, index) => {
-      if (!line.trim()) return; 
-      
-      const getValue = (key: string) => {
-        const match = line.match(new RegExp(`(?:^|;\\s*)${key}=([^;]*)`));
-        return match ? match[1] : null;
-      };
+    const lines = input.split("\n");
+    let validCount = 0;
+    const nonEmptyTotal = lines.filter((l) => l.trim().length > 0).length;
 
-      const c_user = getValue("c_user");
-      const xs = getValue("xs");
+    const processedLines = lines
+      .map((line) => {
+        // 跳过空行
+        if (!line.trim()) return null;
 
-      if (c_user || xs) {
-        const parts = [];
-        if (c_user) parts.push(`c_user=${c_user}`);
-        if (xs) parts.push(`xs=${xs}`);
-        
-        const formatted = parts.join("; ") + ";";
-        extracted.push({
-          id: index,
-          c_user,
-          xs,
-          formatted
-        });
-      }
-    });
-    setResults(extracted);
-    setAllCopied(false);
+        // 正则匹配 c_user 和 xs
+        // 逻辑：匹配 key=value，直到遇到分号或字符串结束
+        const cUserMatch = line.match(/c_user=([^;\s]+)/);
+        const xsMatch = line.match(/xs=([^;\s]+)/);
+
+        const cUser = cUserMatch ? cUserMatch[1] : null;
+        const xs = xsMatch ? xsMatch[1] : null;
+
+        // 必须两个字段都存在才视为有效数据
+        if (cUser && xs) {
+          validCount++;
+          // 强制格式: c_user=VALUE; xs=VALUE; (注意末尾分号)
+          return `c_user=${cUser}; xs=${xs};`;
+        }
+        return null;
+      })
+      .filter((item): item is string => item !== null); // 过滤掉无效行
+
+    setOutput(processedLines.join("\n"));
+    setStats({ total: nonEmptyTotal, valid: validCount });
+    setCopied(false); // 重置复制状态
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newText = e.target.value;
-    setText(newText);
-    processText(newText);
+  // 清空功能
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setStats({ total: 0, valid: 0 });
+    setCopied(false);
   };
 
-  const copyItem = (content: string, id: number) => {
-    navigator.clipboard.writeText(content);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const copyAll = () => {
-    if (results.length === 0) return;
-    const allContent = results.map(r => r.formatted).join('\n');
-    navigator.clipboard.writeText(allContent);
-    setAllCopied(true);
-    setTimeout(() => setAllCopied(false), 2000);
-  };
-
-  const clearAll = () => {
-    setText("");
-    setResults([]);
-    setAllCopied(false);
+  // 复制功能
+  const handleCopy = async () => {
+    if (!output) return;
+    try {
+      await navigator.clipboard.writeText(output);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("复制失败:", err);
+    }
   };
 
   return (
-    // 关键修改 1: 
-    // 手机端 (默认): flex-col justify-start pt-6。不再垂直居中，防止键盘弹出时页面中心点上移导致跳动。
-    // 电脑端 (sm): justify-center p-8。保持居中美观。
-    <div className="min-h-screen bg-[#F5F5F7] text-zinc-900 font-sans selection:bg-blue-500/20 flex flex-col sm:flex-row sm:items-center justify-start sm:justify-center pt-6 px-3 sm:p-8 pb-safe">
-      <main className="w-full max-w-3xl flex flex-col gap-4 sm:gap-6 relative">
-        
-        {/* Header */}
-        <div className="flex flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <Link 
-              href="/tools" 
-              className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-all active:scale-95 shadow-sm shrink-0"
-              title="返回工具列表"
-            >
-              <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
-            </Link>
-            <div className="flex flex-col">
-              <h1 className="text-xl sm:text-4xl font-semibold tracking-tight text-zinc-900 flex items-center gap-2 sm:gap-3">
-                <Cookie className="text-zinc-400 w-5 h-5 sm:w-8 sm:h-8" />
-                Cookie Filter
-              </h1>
-              <p className="text-zinc-500 text-xs sm:text-lg font-medium hidden sm:block">
-                批量提取多行 Cookie 中的 c_user 和 xs
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50 text-gray-800 pb-8 font-sans">
+      {/* 1. Header: Mobile Optimized */}
+      <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 safe-top">
+        <div className="flex items-center h-14 px-4 max-w-md mx-auto">
+          <Link
+            href="/tools"
+            className="p-2 -ml-2 rounded-full hover:bg-gray-100 active:scale-95 transition-transform"
+            aria-label="返回工具列表"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-600" />
+          </Link>
+          <h1 className="ml-2 text-lg font-semibold text-gray-900">
+            Cookie 格式化工具
+          </h1>
         </div>
+      </header>
 
-        {/* Main Container 
-            关键修改 2:
-            手机端: h-[550px]。使用固定像素高度，而不是 vh。
-                   这样当键盘弹出缩小视口时，容器高度保持不变，不会被压缩。
-            电脑端: h-[600px]。
-        */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl shadow-zinc-200/50 rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col sm:flex-row h-[550px] sm:h-[600px]">
-          
-          {/* Left Side: Input Area 
-             Mobile: h-[35%] 固定比例
-          */}
-          <div className="w-full h-[35%] sm:h-full sm:w-1/2 p-1 flex flex-col border-b sm:border-b-0 sm:border-r border-zinc-100 bg-white/40 relative group shrink-0">
-            <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shrink-0">
-                <span className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">Input Data</span>
-                {text && (
-                    <button onClick={clearAll} className="p-1.5 bg-zinc-100 hover:bg-zinc-200 rounded-full text-zinc-400 hover:text-zinc-600 transition-colors touch-manipulation" title="Clear">
-                        <Trash2 size={14} />
-                    </button>
-                )}
-            </div>
+      <main className="max-w-md mx-auto px-4 py-4 space-y-4">
+        {/* 2. Input Area */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 ml-1">
+            原始数据输入
+          </label>
+          <div className="relative">
             <textarea
-              value={text}
-              onChange={handleChange}
-              placeholder="在此粘贴多行数据...&#10;例如：&#10;xxxxx c_user=123; xs=abc;"
-              className="flex-1 w-full px-4 sm:px-6 pb-4 pt-0 bg-transparent resize-none outline-none text-base sm:text-sm font-mono text-zinc-600 placeholder:text-zinc-300 leading-relaxed custom-scrollbar"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="请粘贴杂乱的 Cookie 数据...&#10;每行一条，需包含 c_user 和 xs"
+              className="w-full h-40 p-3 text-sm bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none shadow-sm placeholder:text-gray-400"
               spellCheck={false}
             />
-          </div>
-
-          {/* Right Side: Results List 
-             Mobile: flex-1 自动填充剩余空间
-          */}
-          <div className="w-full flex-1 sm:h-full sm:w-1/2 flex flex-col bg-zinc-50/50 min-h-0">
-            
-            <div className="h-12 sm:h-14 px-4 sm:px-6 border-b border-zinc-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10 shrink-0">
-              <div className="flex items-center gap-2">
-                <ListChecks size={16} className="text-zinc-400" />
-                <span className="text-xs sm:text-sm font-semibold text-zinc-600">
-                  Results {results.length > 0 && <span className="bg-zinc-200 text-zinc-600 px-2 py-0.5 rounded-full text-[10px] sm:text-xs ml-1">{results.length}</span>}
-                </span>
+            {input && (
+              <div className="absolute bottom-2 right-2 text-xs text-gray-400 bg-white/90 px-2 py-1 rounded-md">
+                {input.split("\n").length} 行
               </div>
-              
-              {results.length > 0 && (
-                <button
-                  onClick={copyAll}
-                  disabled={allCopied}
-                  className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-medium transition-all duration-300 px-2.5 sm:px-3 py-1.5 rounded-full touch-manipulation ${
-                    allCopied 
-                      ? "text-green-600 bg-green-100 cursor-default" 
-                      : "text-white bg-blue-500 hover:bg-blue-600 shadow-sm hover:shadow-blue-200"
-                  }`}
-                >
-                  {allCopied ? <Check size={12} className="sm:w-3.5 sm:h-3.5" /> : <Layers size={12} className="sm:w-3.5 sm:h-3.5" />}
-                  {allCopied ? "已复制" : "复制全部"}
-                </button>
-              )}
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar">
-              {results.length === 0 ? (
-                 <div className="h-full flex flex-col items-center justify-center text-zinc-300 gap-2">
-                    <Cookie size={40} className="opacity-10 sm:w-12 sm:h-12" />
-                    <p className="text-xs sm:text-sm">等待输入...</p>
-                 </div>
-              ) : (
-                <div className="flex flex-col gap-2 sm:gap-3 pb-safe">
-                  {results.map((item) => (
-                    <div 
-                      key={item.id} 
-                      className="group bg-white p-2.5 sm:p-3 rounded-xl border border-zinc-100 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-2"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            {item.c_user ? (
-                                <span className="bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded-md text-[10px] sm:text-xs font-mono font-medium border border-zinc-200">
-                                    {item.c_user}
-                                </span>
-                            ) : (
-                                <span className="text-[10px] text-zinc-400 italic">No ID</span>
-                            )}
-                        </div>
-                         <span 
-                            className={`text-[10px] font-bold text-green-600 uppercase tracking-wider transition-all duration-300 ${
-                                copiedId === item.id 
-                                ? "opacity-100 translate-x-0" 
-                                : "opacity-0 translate-x-2"
-                            }`}
-                        >
-                            Copied
-                        </span>
-                      </div>
-
-                      <div className="flex items-end justify-between gap-3">
-                        <code className="text-[11px] sm:text-xs text-zinc-500 font-mono break-all line-clamp-2 bg-zinc-50 p-1.5 rounded-lg w-full border border-transparent group-hover:border-zinc-100 transition-colors">
-                            {item.formatted}
-                        </code>
-                        
-                        <button
-                          onClick={() => copyItem(item.formatted, item.id)}
-                          className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 touch-manipulation ${
-                            copiedId === item.id
-                              ? "bg-green-500 text-white shadow-md scale-105"
-                              : "bg-zinc-100 text-zinc-400 hover:bg-blue-500 hover:text-white active:bg-blue-600 active:text-white"
-                          }`}
-                        >
-                          {copiedId === item.id ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="h-8 sm:hidden"></div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
-        
-        <div className="text-center hidden sm:block">
-            <p className="text-sm text-zinc-400">Designed for Efficiency</p>
+
+        {/* 3. Control Bar */}
+        <div className="grid grid-cols-4 gap-3">
+          {/* 清空按钮 (1/4) */}
+          <button
+            onClick={handleClear}
+            disabled={!input && !output}
+            className="col-span-1 flex flex-col items-center justify-center h-14 rounded-xl bg-white border border-gray-200 text-gray-600 shadow-sm active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
+          >
+            <Trash2 className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px] font-medium">清空</span>
+          </button>
+
+          {/* 提取按钮 (2/4 - 主要操作) */}
+          <button
+            onClick={handleExtract}
+            disabled={!input}
+            className="col-span-2 flex flex-row items-center justify-center gap-2 h-14 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
+          >
+            <Play className="w-5 h-5 fill-current" />
+            <span className="text-sm font-bold">开始提取</span>
+          </button>
+
+          {/* 复制按钮 (1/4) */}
+          <button
+            onClick={handleCopy}
+            disabled={!output}
+            className={`col-span-1 flex flex-col items-center justify-center h-14 rounded-xl border shadow-sm active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 ${
+              copied
+                ? "bg-green-50 border-green-200 text-green-600"
+                : "bg-white border-gray-200 text-gray-600"
+            }`}
+          >
+            {copied ? (
+              <CheckCircle2 className="w-5 h-5 mb-0.5" />
+            ) : (
+              <Copy className="w-5 h-5 mb-0.5" />
+            )}
+            <span className="text-[10px] font-medium">
+              {copied ? "已复制" : "复制"}
+            </span>
+          </button>
+        </div>
+
+        {/* 4. Statistics & Result Area */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-end px-1">
+            <label className="text-sm font-medium text-gray-700">
+              提取结果
+            </label>
+            {stats.total > 0 && (
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                原数据 {stats.total} 行 &rarr; 有效 {stats.valid} 行
+              </span>
+            )}
+          </div>
+
+          <div className="relative group">
+            <textarea
+              readOnly
+              value={output}
+              placeholder="等待提取..."
+              className={`w-full h-48 p-3 text-sm rounded-xl border resize-none transition-colors ${
+                output
+                  ? "bg-indigo-50/50 border-indigo-200 text-indigo-900"
+                  : "bg-gray-100 border-transparent text-gray-500"
+              }`}
+              onClick={(e) => e.currentTarget.select()}
+            />
+            {!output && stats.total > 0 && stats.valid === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="text-sm text-gray-400">未找到有效 Cookie 数据</span>
+              </div>
+            )}
+          </div>
+          
+          <div className="px-1">
+             <p className="text-xs text-gray-400 leading-relaxed">
+               * 仅输出包含 <code className="bg-gray-100 px-1 rounded">c_user</code> 和 <code className="bg-gray-100 px-1 rounded">xs</code> 的行。
+               <br />
+               * 自动移除多余字符，统一格式为 <code className="bg-gray-100 px-1 rounded">c_user=...; xs=...;</code>
+             </p>
+          </div>
         </div>
       </main>
-      
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(0, 0, 0, 0.05);
-          border-radius: 20px;
-        }
-        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-          background-color: rgba(0, 0, 0, 0.15);
-        }
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-      `}</style>
     </div>
   );
 }
