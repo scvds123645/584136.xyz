@@ -97,7 +97,8 @@ export default function NumberExtractor14Page() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="请粘贴包含14位数字的多行文本...&#10;例如：&#10;订单号：20231012123456 已发货&#10;ID: 20231012987654"
-            className="w-full h-40 p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none placeholder:text-gray-400"
+            // 🟢 修复点：移除了 transition-all，添加了 outline-none 和 transition duration-200
+            className="w-full h-40 p-3 text-base border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 resize-none placeholder:text-gray-400"
           />
         </div>
 

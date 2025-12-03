@@ -1,4 +1,3 @@
-// app/cookie-filter/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -97,7 +96,9 @@ export default function CookieFilterPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="请粘贴杂乱的 Cookie 数据...&#10;每行一条，需包含 c_user 和 xs"
-              className="w-full h-40 p-3 text-sm bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none shadow-sm placeholder:text-gray-400"
+              // 🟢 修复点：移除了 transition-all，添加了 outline-none 和 transition duration-200
+              // 这样在手机上点击输入框时，键盘弹出就不会导致输入框高度动画卡顿了
+              className="w-full h-40 p-3 text-sm bg-white border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 resize-none shadow-sm placeholder:text-gray-400"
               spellCheck={false}
             />
             {input && (
@@ -114,7 +115,8 @@ export default function CookieFilterPage() {
           <button
             onClick={handleClear}
             disabled={!input && !output}
-            className="col-span-1 flex flex-col items-center justify-center h-14 rounded-xl bg-white border border-gray-200 text-gray-600 shadow-sm active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
+            // 按钮这里 transition-all 影响不大，但为了统一风格也优化了一下
+            className="col-span-1 flex flex-col items-center justify-center h-14 rounded-xl bg-white border border-gray-200 text-gray-600 shadow-sm active:scale-95 transition disabled:opacity-50 disabled:active:scale-100"
           >
             <Trash2 className="w-5 h-5 mb-0.5" />
             <span className="text-[10px] font-medium">清空</span>
@@ -124,7 +126,7 @@ export default function CookieFilterPage() {
           <button
             onClick={handleExtract}
             disabled={!input}
-            className="col-span-2 flex flex-row items-center justify-center gap-2 h-14 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
+            className="col-span-2 flex flex-row items-center justify-center gap-2 h-14 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-200 active:scale-95 transition disabled:opacity-50 disabled:active:scale-100"
           >
             <Play className="w-5 h-5 fill-current" />
             <span className="text-sm font-bold">开始提取</span>
@@ -134,7 +136,7 @@ export default function CookieFilterPage() {
           <button
             onClick={handleCopy}
             disabled={!output}
-            className={`col-span-1 flex flex-col items-center justify-center h-14 rounded-xl border shadow-sm active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 ${
+            className={`col-span-1 flex flex-col items-center justify-center h-14 rounded-xl border shadow-sm active:scale-95 transition disabled:opacity-50 disabled:active:scale-100 ${
               copied
                 ? "bg-green-50 border-green-200 text-green-600"
                 : "bg-white border-gray-200 text-gray-600"
@@ -169,9 +171,10 @@ export default function CookieFilterPage() {
               readOnly
               value={output}
               placeholder="等待提取..."
-              className={`w-full h-48 p-3 text-sm rounded-xl border resize-none transition-colors ${
+              // 这里的 transition-colors 是安全的，因为它只过渡颜色
+              className={`w-full h-48 p-3 text-sm rounded-xl border outline-none resize-none transition-colors duration-200 ${
                 output
-                  ? "bg-indigo-50/50 border-indigo-200 text-indigo-900"
+                  ? "bg-indigo-50/50 border-indigo-200 text-indigo-900 focus:ring-2 focus:ring-indigo-500/50"
                   : "bg-gray-100 border-transparent text-gray-500"
               }`}
               onClick={(e) => e.currentTarget.select()}
