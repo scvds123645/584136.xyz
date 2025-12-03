@@ -104,7 +104,7 @@ export default function ToolsPage() {
             </h1>
             <p className="mt-2 text-zinc-500 text-sm flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-yellow-500/80" />
-              高密度数据处理中心
+              数据处理中心
             </p>
           </div>
 
