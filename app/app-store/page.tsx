@@ -1,4 +1,3 @@
-
 // path: /app/app/page.tsx
 import React from 'react';
 import Link from 'next/link';
@@ -7,7 +6,7 @@ import {
   Star, 
   Package // 用于没有图标时的默认占位
 } from 'lucide-react';
-
+import AnnouncementModal from './AnnouncementModal';
 // --- Types ---
 interface AppItem {
   id: string;
@@ -15,7 +14,7 @@ interface AppItem {
   description: string;
   category: string;
   rating: number;
-  iconUrl?: string; // 变为可选字符串，存储图片链接
+  iconUrl?: string; // 变为可选字符串,存储图片链接
   downloadUrl: string;
 }
 
@@ -107,6 +106,9 @@ const apps: AppItem[] = [
 export default function SoftwareStorePage() {
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900 pb-safe">
+      
+      {/* 首次访问弹窗公告 */}
+      <AnnouncementModal />
       
       {/* --- Sticky Header --- */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
