@@ -13,6 +13,7 @@ import {
   CopyMinus,
   Sparkles,
   ChevronRight,
+Database,
 } from "lucide-react";
 
 // --- Types ---
@@ -57,18 +58,11 @@ const tools: ToolItem[] = [
     span: "col-span-2",
   },
   {
-    path: "/cookie-converter",
-    title: "Cookie 转换",
-    desc: "JSON/Netscape 格式互转，适配多环境。",
-    icon: RefreshCcw,
-    color: "from-emerald-500 to-teal-400",
-  },
-  {
-    path: "/cookie-filter",
-    title: "Cookie 净化",
-    desc: "智能筛选关键 Key，清洗冗余数据。",
-    icon: Filter,
-    color: "from-amber-500 to-yellow-400",
+    path: "/cookie-processor",
+    title: "Cookie 处理器",
+    desc: "提取格式化 Cookie 数据，快速转换账号格式。",
+    icon: Database,
+    color: "from-blue-500 to-cyan-400",
   },
 ];
 
