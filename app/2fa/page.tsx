@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { authenticator } from 'otplib';
+import Link from 'next/link'; // 引入 Link
 
 export default function AppleStyle2FA() {
   const [secret, setSecret] = useState('');
@@ -75,7 +76,20 @@ export default function AppleStyle2FA() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F5F7] flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden">
+    // 增加 relative 属性，作为 absolute 按钮的定位基准
+    <div className="min-h-[100dvh] bg-[#F5F5F7] flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden relative">
+      
+      {/* --- 新增：返回工具箱按钮 (左上角悬浮) --- */}
+      <Link 
+        href="/tools" 
+        className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-1.5 px-4 py-2 bg-white/60 backdrop-blur-md border border-white/40 shadow-sm rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-white transition-all duration-200 active:scale-95 z-20"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        <span>工具箱</span>
+      </Link>
+
       <div className="w-full max-w-md bg-white/80 backdrop-blur-xl border border-white/40 shadow-xl rounded-2xl md:rounded-3xl p-6 md:p-8 transition-all duration-300">
         
         <div className="flex items-center justify-center mb-6">
@@ -87,7 +101,7 @@ export default function AppleStyle2FA() {
           onClick={handleCopyToken}
           className="group relative bg-white rounded-xl md:rounded-2xl p-6 md:p-8 mb-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center cursor-pointer transition-transform duration-100 active:scale-95 touch-manipulation overflow-hidden"
         >
-          {/* --- 新增：倒计时数字 (右上角) --- */}
+          {/* 倒计时数字 (右上角) */}
           {isValid && (
             <div className={`absolute top-3 right-4 font-mono text-sm md:text-base font-bold transition-colors duration-300 ${getTextColor()}`}>
               {timeLeft}s

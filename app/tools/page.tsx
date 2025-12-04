@@ -13,7 +13,8 @@ import {
   CopyMinus,
   Sparkles,
   ChevronRight,
-Database,
+  Database,
+  ShieldCheck, // 引入新图标
 } from "lucide-react";
 
 // --- Types ---
@@ -48,6 +49,14 @@ const tools: ToolItem[] = [
     desc: "从复杂非结构化文本中快速清洗提取数字。",
     icon: Hash,
     color: "from-violet-500 to-purple-400",
+  },
+  // --- 新增 2FA 工具 ---
+  {
+    path: "/2fa",
+    title: "2FA 验证器",
+    desc: "极简 TOTP 生成工具，支持密钥导入与快捷访问。",
+    icon: ShieldCheck,
+    color: "from-emerald-500 to-green-400", // 绿色代表安全
   },
   {
     path: "/facebook-cookie-injector",
