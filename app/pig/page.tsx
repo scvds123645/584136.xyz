@@ -11,7 +11,7 @@ interface PigResult {
   analysis: string;
 }
 
-// 结果数据 (保持不变)
+// 结果数据
 const pigResults: PigResult[] = [
   { id: "human", name: "人类", emoji: "👤", description: "检测不出猪元素，是人类吗？", analysis: "" },
   { id: "pig", name: "猪", emoji: "🐷", description: "普通小猪", analysis: "" },
@@ -49,22 +49,27 @@ export default function PigTestPage() {
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   
-  // 圆环参数
   const radius = 85;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
   const requiredHoldTime = 3000;
 
-  // 初始化
+  // 初始化逻辑
   useEffect(() => {
     try {
       const savedResult = localStorage.getItem('pigTestResult');
       if (savedResult) {
         setResult(JSON.parse(savedResult));
+        
+        // 1. 关闭 Loading，此时 showResultAnimation 为 false
+        // 组件会渲染为 opacity-0 且位置非常靠下
         setIsLoading(false);
+        
+        // 2. 增加延迟到 100ms，确保浏览器确实渲染了"隐藏状态"
+        // 这样随后的动画才会产生明显的对比
         setTimeout(() => {
           setShowResultAnimation(true);
-        }, 50); 
+        }, 100); 
       } else {
         setIsLoading(false);
       }
@@ -75,7 +80,6 @@ export default function PigTestPage() {
     }
   }, []);
 
-  // 播放音效
   const playSound = () => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -103,7 +107,6 @@ export default function PigTestPage() {
     }
   };
 
-  // 生成结果
   const generateResult = () => {
     playSound();
     const randomIndex = Math.floor(Math.random() * pigResults.length);
@@ -113,25 +116,19 @@ export default function PigTestPage() {
     setResult(newResult);
     
     setShowResultAnimation(false);
-    setTimeout(() => setShowResultAnimation(true), 10);
+    setTimeout(() => setShowResultAnimation(true), 50);
   };
 
-  // 处理开始按压
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
     if (result) return;
-    
     setIsHolding(true);
     setHasTried(true);
     startTimeRef.current = Date.now();
-
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-
     progressIntervalRef.current = setInterval(() => {
       const elapsedTime = Date.now() - startTimeRef.current;
       const newProgress = Math.min((elapsedTime / requiredHoldTime) * 100, 100);
-      
       setProgress(newProgress);
-
       if (newProgress >= 100) {
         if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
         setIsHolding(false);
@@ -140,33 +137,23 @@ export default function PigTestPage() {
     }, 30);
   };
 
-  // 处理结束按压
   const handleEnd = () => {
     if (result) return;
-
     setIsHolding(false);
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
-    
-    if (progress < 100) {
-      setProgress(0);
-    }
+    if (progress < 100) setProgress(0);
   };
 
-  // 全局松开事件监听
   useEffect(() => {
     const globalEnd = () => {
-      if (isHolding) {
-        handleEnd();
-      }
+      if (isHolding) handleEnd();
     };
-
     window.addEventListener('mouseup', globalEnd);
     window.addEventListener('touchend', globalEnd);
     window.addEventListener('touchcancel', globalEnd);
-
     return () => {
       window.removeEventListener('mouseup', globalEnd);
       window.removeEventListener('touchend', globalEnd);
@@ -196,29 +183,27 @@ export default function PigTestPage() {
           transform: rotate(-90deg);
           transform-origin: 50% 50%;
         }
-        /* 删除了 .text-shadow-lg 类，改用内联样式 */
       `}</style>
 
       <div className="container max-w-md mx-auto text-center">
-        {/* 标题 - 修复了阴影闪烁问题 */}
         <h1 
           className="text-4xl md:text-5xl font-bold mb-6 text-[#FFB6C1]"
-          style={{ 
-            textShadow: '0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)' 
-          }}
+          style={{ textShadow: '0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)' }}
         >
           测测你是不是猪 <span className="text-[#FF69B4]">🐷</span>
         </h1>
 
-        {/* 主卡片 */}
         <div className="bg-white rounded-3xl shadow-lg p-6 mb-8 transform transition-all duration-300 hover:shadow-xl min-h-[360px] flex flex-col justify-center">
           
           {isLoading ? (
              <div className="h-full w-full opacity-0"></div>
           ) : result ? (
+             // --- 关键修改区域 ---
              <div 
-               className={`transition-all duration-500 ease-out transform ${
-                 showResultAnimation ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+               className={`transition-all duration-700 ease-out transform ${
+                 showResultAnimation 
+                   ? 'opacity-100 translate-y-0'      // 最终状态
+                   : 'opacity-0 translate-y-16'       // 初始状态：下移 4rem (64px)，幅度更大，更明显
                }`}
              >
                <div className="bg-[#FFB6C1]/10 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[16rem] mb-6">
@@ -239,9 +224,7 @@ export default function PigTestPage() {
                </p>
              </div>
           ) : (
-            <div 
-              className={`transition-transform duration-200 ${isHolding ? 'scale-105' : ''}`}
-            >
+            <div className={`transition-transform duration-200 ${isHolding ? 'scale-105' : ''}`}>
               <div 
                 className="relative w-[200px] h-[200px] mx-auto cursor-pointer"
                 onMouseDown={handleStart}
@@ -250,15 +233,7 @@ export default function PigTestPage() {
                 onTouchEnd={handleEnd}
               >
                 <svg className="transform -rotate-90 w-full h-full" width="200" height="200">
-                  <circle
-                    className="text-gray-200"
-                    strokeWidth="10"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r={radius}
-                    cx="100"
-                    cy="100"
-                  />
+                  <circle className="text-gray-200" strokeWidth="10" stroke="currentColor" fill="transparent" r={radius} cx="100" cy="100" />
                   <circle
                     className="text-[#FFB6C1] progress-ring-circle"
                     strokeWidth="10"
@@ -267,18 +242,12 @@ export default function PigTestPage() {
                     r={radius}
                     cx="100"
                     cy="100"
-                    style={{
-                      strokeDasharray: circumference,
-                      strokeDashoffset: strokeDashoffset
-                    }}
+                    style={{ strokeDasharray: circumference, strokeDashoffset: strokeDashoffset }}
                   />
                 </svg>
-
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
                   {isHolding || progress > 0 ? (
-                    <span className="text-2xl font-bold text-[#FFB6C1]">
-                      {Math.round(progress)}%
-                    </span>
+                    <span className="text-2xl font-bold text-[#FFB6C1]">{Math.round(progress)}%</span>
                   ) : (
                     <div className="flex flex-col items-center">
                       <div className="text-5xl mb-2">👇</div>
@@ -287,10 +256,7 @@ export default function PigTestPage() {
                   )}
                 </div>
               </div>
-
-              <p className="text-gray-600 mt-6 h-6 transition-all duration-300">
-                {getInstructionText()}
-              </p>
+              <p className="text-gray-600 mt-6 h-6 transition-all duration-300">{getInstructionText()}</p>
             </div>
           )}
         </div>
