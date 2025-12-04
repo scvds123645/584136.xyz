@@ -6,8 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   AppWindow,
-  // RefreshCcw, // 未使用，可根据需要保留或删除
-  // Filter, // 未使用
   Facebook,
   Hash,
   CopyMinus,
@@ -15,7 +13,8 @@ import {
   ChevronRight,
   Database,
   ShieldCheck,
-  UserCheck, // [新增] 引入用于 UID 检测的图标
+  UserCheck,
+  Dna, // [新增] 引入 DNA 图标用于猪猪鉴定
 } from "lucide-react";
 
 // --- Types ---
@@ -73,13 +72,20 @@ const tools: ToolItem[] = [
     icon: Database,
     color: "from-blue-500 to-cyan-400",
   },
-  // --- [新增] FB UID 检测工具 ---
   {
-    path: "https://3.584136.xyz", // 外部链接
+    path: "https://3.584136.xyz",
     title: "FB UID 存活检测",
     desc: "批量筛选 Live/Die 账号，无需登录，极速验证。",
     icon: UserCheck,
-    color: "from-sky-500 to-indigo-500", // 保持 FB 风格但略有区分
+    color: "from-sky-500 to-indigo-500",
+  },
+  // --- [新增] 猪猪鉴定器 ---
+  {
+    path: "/pig",
+    title: "猪猪鉴定器",
+    desc: "长按屏幕汲取猪元素，测测你的含猪量。",
+    icon: Dna,
+    color: "from-pink-500 to-rose-400", // 粉色系，契合主题
   },
 ];
 

@@ -166,14 +166,6 @@ export default function PigTestPage() {
     };
   }, [isHolding, result, progress]);
 
-  // 重新测试
-  const handleRetest = () => {
-    localStorage.removeItem('pigTestResult');
-    setResult(null);
-    setProgress(0);
-    setHasTried(false); // 重置尝试状态，恢复初始提示语
-  };
-
   // 获取显示的提示文本
   const getInstructionText = () => {
     if (isHolding) return '正在提取猪元素...';
@@ -289,14 +281,9 @@ export default function PigTestPage() {
                 <p className="text-gray-600">{result.description}</p>
               </div>
 
-              <button 
-                onClick={handleRetest}
-                className="bg-[#FFB6C1] text-white py-2 px-6 rounded-full font-medium mb-4 hover:bg-[#FFB6C1]/80 transition-colors shadow-md active:scale-95"
-              >
-                重新测试
-              </button>
+              {/* 重新测试按钮已被移除 */}
 
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 text-sm mt-4">
                 提示：结果已保存，刷新不会改变哦！
               </p>
             </div>
