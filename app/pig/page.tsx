@@ -262,7 +262,7 @@ export default function PigTestPage() {
         </div>
 
         <footer className="text-gray-500 text-sm">
-          <p>作者：nanan <span className="text-[#FFB6C1]">🐽</span></p>
+          <p>作者：创号团队 <span className="text-[#FFB6C1]">🐽</span></p>
         </footer>
       </div>
     </div>
