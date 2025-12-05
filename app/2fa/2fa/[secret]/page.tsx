@@ -5,7 +5,14 @@ import React, { useState, useEffect, use } from 'react';
 import { authenticator } from 'otplib';
 import Link from 'next/link';
 
-export default function UltimateAppleStyle2FA({ params }) {
+// 添加类型定义
+type PageProps = {
+  params: Promise<{
+    secret: string;
+  }>;
+};
+
+export default function UltimateAppleStyle2FA({ params }: PageProps) {
   const resolvedParams = use(params);
   const rawSecret = resolvedParams.secret;
 
@@ -13,7 +20,7 @@ export default function UltimateAppleStyle2FA({ params }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [mounted, setMounted] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     setMounted(true);
