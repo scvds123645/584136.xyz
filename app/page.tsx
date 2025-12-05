@@ -29,7 +29,6 @@ export default function Page() {
           padding: 0;
           box-sizing: border-box;
         }
-
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
           background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -39,17 +38,14 @@ export default function Page() {
           justify-content: center;
           padding: 16px;
         }
-
         .container {
           width: 100%;
           max-width: 420px;
         }
-
         .header {
           text-align: center;
           margin-bottom: 32px;
         }
-
         .logo {
           width: 64px;
           height: 64px;
@@ -61,31 +57,26 @@ export default function Page() {
           margin: 0 auto 16px;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-
         .logo svg {
           width: 36px;
           height: 36px;
           color: white;
         }
-
         .header h1 {
           font-size: 24px;
           font-weight: 700;
           color: #1e293b;
           margin-bottom: 8px;
         }
-
         .header p {
           font-size: 14px;
           color: #64748b;
         }
-
         .links {
           display: flex;
           flex-direction: column;
           gap: 12px;
         }
-
         .link-item {
           display: flex;
           align-items: center;
@@ -100,15 +91,12 @@ export default function Page() {
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
         }
-
         .link-item:active {
           transform: scale(0.98);
         }
-
         .link-item:hover {
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-
         .link-icon {
           flex-shrink: 0;
           width: 48px;
@@ -119,43 +107,36 @@ export default function Page() {
           justify-content: center;
           color: white;
         }
-
         .link-icon svg {
           width: 24px;
           height: 24px;
         }
-
         .link-content {
           flex: 1;
           min-width: 0;
         }
-
         .link-title {
           font-size: 16px;
           font-weight: 600;
           color: #1e293b;
           margin-bottom: 4px;
         }
-
         .link-desc {
           font-size: 14px;
           color: #64748b;
         }
-
         .link-arrow {
           flex-shrink: 0;
           width: 20px;
           height: 20px;
           color: #cbd5e1;
         }
-
         .blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
         .green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
         .cyan { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
         .purple { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
         .orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
         .red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-
         .footer {
           margin-top: 48px;
           text-align: center;
@@ -163,7 +144,6 @@ export default function Page() {
           color: #94a3b8;
         }
       `}} />
-
       <Script id="baidu-analytics" strategy="afterInteractive">
         {`
           var _hmt = _hmt || [];
@@ -175,7 +155,6 @@ export default function Page() {
           })();
         `}
       </Script>
-
       <div className="container">
         <div className="header">
           <div className="logo">
@@ -186,7 +165,6 @@ export default function Page() {
           <h1>Facebook服务导航</h1>
           <p>账号购买·工具下载·客服支持</p>
         </div>
-
         <div className="links">
           {/* 1. 官方卡网 */}
           <a href="https://fh10.zmfaka.cn/shop/24XZCD9E" target="_blank" rel="noopener noreferrer" className="link-item">
@@ -203,9 +181,8 @@ export default function Page() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
             </svg>
           </a>
-
           {/* 2. 注入器 */}
-          <a href="https://1.584136.xyz/" target="_blank" rel="noopener noreferrer" className="link-item">
+          <a href="/facebook-cookie-injector" className="link-item">
             <div className="link-icon green">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{width: '28px', height: '28px'}}>
                 <path d="M5.39911 18.7128L5.34322 18.6569M5.39911 18.7128L5.28704 18.6007M5.39911 18.7128C6.15797 19.4716 7.38051 19.4963 8.16935 18.7687L8.96438 18.0353M5.34322 18.6569L5.28704 18.6007M5.34322 18.6569L3.22194 20.7782M5.28704 18.6007C4.52827 17.8419 4.50351 16.6196 5.23094 15.8307L5.96438 15.0353M8.96438 18.0353L5.96438 15.0353M8.96438 18.0353C9.30763 18.3786 9.86416 18.3786 10.2074 18.0353L17.3641 10.8787C18.1451 10.0976 18.1451 8.83128 17.3641 8.05023L15.9499 6.63602C15.1688 5.85497 13.9025 5.85497 13.1214 6.63602L5.96439 13.7931C5.62135 14.1361 5.62134 14.6923 5.96438 15.0353M18.7781 5.22186L16.6567 7.34318M18.7781 5.22186L16.6567 3.10052M18.7781 5.22186L20.8994 7.34317" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -219,7 +196,6 @@ export default function Page() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
             </svg>
           </a>
-
           {/* 3. 账号检测 */}
           <a href="https://3.584136.xyz" target="_blank" rel="noopener noreferrer" className="link-item">
             <div className="link-icon orange">
@@ -236,7 +212,6 @@ export default function Page() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
             </svg>
           </a>
-
           {/* 4. 资源中心 (新增) */}
           <a href="/tools" className="link-item">
             <div className="link-icon red">
@@ -252,7 +227,6 @@ export default function Page() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
             </svg>
           </a>
-
           {/* 5. 官方客服 */}
           <a href="https://t.me/Facebookkf_bot" target="_blank" rel="noopener noreferrer" className="link-item">
             <div className="link-icon cyan">
@@ -270,7 +244,6 @@ export default function Page() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
             </svg>
           </a>
-
           {/* 6. 官方群组 */}
           <a href="https://t.me/fb180" target="_blank" rel="noopener noreferrer" className="link-item">
             <div className="link-icon purple">
@@ -287,7 +260,6 @@ export default function Page() {
             </svg>
           </a>
         </div>
-
         <footer className="footer">
           <p>© 2024 Facebook服务平台</p>
         </footer>

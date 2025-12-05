@@ -1,20 +1,26 @@
+// Ultimate Advanced Apple-Style 2FA Component
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
 import { authenticator } from 'otplib';
 import Link from 'next/link';
 
-export default function AppleStyleDynamic2FA({ params }: { params: Promise<{ secret: string }> }) {
+export default function UltimateAppleStyle2FA({ params }) {
   const resolvedParams = use(params);
   const rawSecret = resolvedParams.secret;
 
-  const [token, setToken] = useState<string>('加载中');
+  const [token, setToken] = useState('加载中');
   const [timeLeft, setTimeLeft] = useState(30);
   const [mounted, setMounted] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     setMounted(true);
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    setTheme(mq.matches ? 'dark' : 'light');
+    mq.addEventListener('change', e => setTheme(e.matches ? 'dark' : 'light'));
 
     const calculate = () => {
       const now = new Date();
@@ -24,7 +30,7 @@ export default function AppleStyleDynamic2FA({ params }: { params: Promise<{ sec
         try {
           const cleanSecret = decodeURIComponent(rawSecret).replace(/\s/g, '');
           const t = authenticator.generate(cleanSecret);
-          setToken(`${t.slice(0, 3)} ${t.slice(3)}`);
+          setToken(`${t.slice(0, 3)} ${t.slice(3)}`.replace(/\$/g, '$$'));
         } catch {
           setToken('密钥错误');
         }
@@ -41,138 +47,142 @@ export default function AppleStyleDynamic2FA({ params }: { params: Promise<{ sec
 
     navigator.clipboard.writeText(token.replace(/\s/g, ''));
     setIsCopied(true);
-    if (navigator.vibrate) navigator.vibrate(40);
+
+    if (navigator.vibrate) navigator.vibrate(45);
 
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  /**  
-   * 移动端优化点：  
-   * 让圆环尺寸随屏幕变化  
-   * - 小屏更紧凑  
-   * - 大屏保持大视觉  
-   */
-  const baseSize = typeof window !== 'undefined'
-    ? Math.min(window.innerWidth * 0.75, 340)
-    : 300;
+  const baseSize =
+    typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.75, 340) : 300;
 
   const radius = baseSize / 2 - 18;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (timeLeft / 30) * circumference;
 
   const ringColor =
-    timeLeft <= 5 ? 'text-red-500' :
-    timeLeft <= 10 ? 'text-orange-400' :
-    'text-blue-500';
+    timeLeft <= 5
+      ? 'text-red-500'
+      : timeLeft <= 10
+      ? 'text-orange-400'
+      : 'text-blue-500';
 
-  const bgColor = timeLeft <= 5 ? 'bg-red-50' : 'bg-white/80';
+  const baseLight = theme === 'dark' ? 'bg-white/10' : 'bg-white/80';
+
+  const glowAnimation = `
+  @keyframes apple-glow {
+    0% { opacity: 0.22; transform: scale(1); }
+    50% { opacity: 0.42; transform: scale(1.06); }
+    100% { opacity: 0.22; transform: scale(1); }
+  }
+
+  @keyframes liquid-flow {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes sweep-scan {
+    0% { transform: translateY(-60%); }
+    100% { transform: translateY(160%); }
+  }
+  `;
 
   if (!mounted) return null;
 
   return (
     <div
-      className="min-h-[100dvh] bg-[#F5F5F7] flex flex-col items-center justify-center p-4 relative overflow-hidden"
+      className="min-h-[100dvh] flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)'
+        background: theme === 'dark' ? '#0a0a0a' : '#F5F5F7'
       }}
     >
-      {/* 顶部返回按钮（适配刘海屏） */}
+      <style>{glowAnimation}</style>
+
       <Link
         href="/2fa"
-        className="
-          absolute 
-          left-4
-          top-[calc(env(safe-area-inset-top)+0.75rem)]
-          flex items-center gap-1.5 px-4 py-2
-          bg-white/60 backdrop-blur-md
-          border border-white/40 shadow-sm 
-          rounded-full text-sm font-medium text-gray-600
-          hover:bg-white hover:text-gray-900
-          active:scale-95 
-          transition-all z-20
-        "
+        className="absolute left-4 top-[calc(env(safe-area-inset-top)+1rem)] px-4 py-2 bg-white/40 backdrop-blur-lg rounded-full text-sm text-gray-800 active:scale-95 transition z-20"
       >
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-        <span>主页</span>
+        返回
       </Link>
 
-      {/* --- 圆环主体 --- */}
       <div
         onClick={handleCopy}
-        className={`
-          relative
-          flex items-center justify-center
-          rounded-full cursor-pointer 
-          ${bgColor} 
-          shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)]
-          touch-manipulation
-          active:scale-[0.97]
-          backdrop-blur-xl
-          transition-all duration-300
-        `}
-        style={{
-          width: baseSize,
-          height: baseSize
-        }}
+        className={`relative flex items-center justify-center rounded-full cursor-pointer touch-manipulation active:scale-95 transition-all ${baseLight}`}
+        style={{ width: baseSize, height: baseSize }}
       >
-        {/* SVG 环形计时器 */}
-        <svg
-          className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none"
-        >
+        <div
+          className={`absolute inset-0 rounded-full blur-3xl opacity-30 pointer-events-none ${ringColor.replace(
+            'text',
+            'bg'
+          )}`}
+          style={{ animation: 'apple-glow 2s ease-in-out infinite' }}
+        />
+
+        <div
+          className="absolute inset-0 rounded-full blur-[45px] opacity-30 pointer-events-none"
+          style={{
+            background:
+              'conic-gradient(#60a5fa,#a855f7,#ec4899,#60a5fa)',
+            animation: 'liquid-flow 8s linear infinite'
+          }}
+        />
+
+        <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-full">
+          <div
+            className="absolute w-full h-1/3 bg-white/20 blur-xl"
+            style={{ animation: 'sweep-scan 2.8s ease-in-out infinite' }}
+          />
+        </div>
+
+        <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none">
           <circle
-            cx="50%" cy="50%" r={radius}
-            fill="none" stroke="#E5E7EB"
-            strokeWidth="12" strokeLinecap="round"
+            cx="50%"
+            cy="50%"
+            r={radius}
+            fill="none"
+            stroke="#E5E7EB20"
+            strokeWidth="12"
           />
           <circle
-            cx="50%" cy="50%" r={radius}
+            cx="50%"
+            cy="50%"
+            r={radius}
             fill="none"
             stroke="currentColor"
             strokeWidth="12"
             strokeLinecap="round"
-            className={`${ringColor} transition-all duration-[900ms] ease-linear drop-shadow-lg`}
+            className={`${ringColor} drop-shadow-xl transition-all duration-700 ease-linear`}
             style={{ strokeDasharray: circumference, strokeDashoffset }}
           />
         </svg>
 
-        {/* 中心内容 */}
-        <div className="flex flex-col items-center z-10 select-none">
-          <h2 className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-2">
-            安全验证码
-          </h2>
+        <div className="z-10 flex flex-col items-center select-none">
+          <p className="text-xs text-gray-400 tracking-widest mb-2">安全验证码</p>
 
-          <div
-            className={`text-5xl font-bold font-mono tracking-widest ${
-              timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-gray-900'
-            } transition-colors`}
+          <p
+            className={`text-5xl font-mono font-bold tracking-widest ${
+              timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-gray-900 dark:text-white'
+            }`}
           >
             {token}
-          </div>
+          </p>
 
-          <div className={`mt-1 font-mono font-medium ${ringColor}`}>
-            {timeLeft}s
-          </div>
+          <p className={`${ringColor} font-mono mt-1`}>{timeLeft}s</p>
 
-          <div
-            className={`
-              mt-4 text-xs font-medium absolute -bottom-10 transition-all duration-300
-              ${isCopied ? 'opacity-100 text-green-600' : 'opacity-0'}
-            `}
+          <p
+            className={`absolute -bottom-10 text-xs transition-all ${
+              isCopied ? 'opacity-100 text-green-600' : 'opacity-0'
+            }`}
           >
             已复制
-          </div>
+          </p>
         </div>
       </div>
 
-      {/* 底部密钥展示（适配小屏，自适应截断） */}
-      <div className="absolute bottom-6 w-full text-center px-8 opacity-40">
-        <p className="text-[11px] font-mono text-gray-500 truncate">
-          {decodeURIComponent(rawSecret || '')}
-        </p>
-      </div>
+      <p className="absolute bottom-6 w-full text-center text-xs opacity-40 text-gray-500 dark:text-gray-400 truncate px-8">
+        {decodeURIComponent(rawSecret || '')}
+      </p>
     </div>
   );
 }
