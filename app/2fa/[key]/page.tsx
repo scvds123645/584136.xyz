@@ -1,62 +1,64 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useMemo } from 'react';
 import { authenticator } from 'otplib';
 import Link from 'next/link';
 
-// --- 修正点 1 ---
-// Props 类型定义中的参数名必须是 `key`，以匹配文件夹 `[key]`
 export default function AppleStyleDynamic2FA({ params }: { params: Promise<{ key: string }> }) {
-  // --- 修正点 2 ---
-  // 使用 React.use() 解包 Promise
   const resolvedParams = use(params);
-  // 从解包后的对象中获取正确的 `key` 属性
   const rawKey = resolvedParams.key;
 
-  const [token, setToken] = useState<string>('加载中');
-  const [timeLeft, setTimeLeft] = useState(30);
-  const [mounted, setMounted] = useState(false);
+  // 立即计算初始token，避免显示"加载中"
+  const initialData = useMemo(() => {
+    if (!rawKey) return { token: '密钥错误', timeLeft: 30 };
+    
+    try {
+      const cleanSecret = decodeURIComponent(rawKey).replace(/\s/g, '');
+      const t = authenticator.generate(cleanSecret);
+      const now = new Date();
+      return {
+        token: `${t.slice(0, 3)} ${t.slice(3)}`,
+        timeLeft: 30 - (now.getSeconds() % 30)
+      };
+    } catch {
+      return { token: '密钥错误', timeLeft: 30 };
+    }
+  }, [rawKey]);
+
+  const [token, setToken] = useState<string>(initialData.token);
+  const [timeLeft, setTimeLeft] = useState(initialData.timeLeft);
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    if (!rawKey) return;
 
     const calculate = () => {
       const now = new Date();
       setTimeLeft(30 - (now.getSeconds() % 30));
       
-      // --- 修正点 3 ---
-      // 后续所有逻辑都使用 `rawKey`
-      if (rawKey) {
-        try {
-          const cleanSecret = decodeURIComponent(rawKey).replace(/\s/g, '');
-          const t = authenticator.generate(cleanSecret);
-          setToken(`${t.slice(0, 3)} ${t.slice(3)}`);
-        } catch {
-          setToken('密钥错误');
-        }
+      try {
+        const cleanSecret = decodeURIComponent(rawKey).replace(/\s/g, '');
+        const t = authenticator.generate(cleanSecret);
+        setToken(`${t.slice(0, 3)} ${t.slice(3)}`);
+      } catch {
+        setToken('密钥错误');
       }
     };
 
-    calculate();
     const timer = setInterval(calculate, 1000);
-
     return () => clearInterval(timer);
-  }, [rawKey]); // 依赖项也应该是 rawKey
+  }, [rawKey]);
 
   const handleCopy = () => {
-    if (token === '密钥错误' || token === '加载中') return;
+    if (token === '密钥错误') return;
     navigator.clipboard.writeText(token.replace(/\s/g, ''));
     setIsCopied(true);
     if (navigator.vibrate) navigator.vibrate(40);
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  if (!mounted) {
-    return null;
-  }
-  
-  const baseSize = Math.min(window.innerWidth * 0.75, 340);
+  // 使用CSS变量代替JS计算，减少重渲染
+  const baseSize = 340;
   const radius = baseSize / 2 - 18;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (timeLeft / 30) * circumference;
@@ -88,8 +90,7 @@ export default function AppleStyleDynamic2FA({ params }: { params: Promise<{ key
       
       <div
         onClick={handleCopy}
-        className={`relative flex items-center justify-center rounded-full cursor-pointer ${bgColor} shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] touch-manipulation active:scale-[0.97] backdrop-blur-xl transition-all duration-300`}
-        style={{ width: baseSize, height: baseSize }}
+        className={`relative flex items-center justify-center rounded-full cursor-pointer ${bgColor} shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] touch-manipulation active:scale-[0.97] backdrop-blur-xl transition-all duration-300 max-w-[340px] w-[75vw] aspect-square`}
       >
         <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none">
           <circle
